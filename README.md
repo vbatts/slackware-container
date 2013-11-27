@@ -1,14 +1,17 @@
-== slackware-docker
+slackware-docker
+===============
 
 build scripts for a slackware docker image
 
-== Overview
+Overview
+========
 
 The Dockerfile is incomplete so far, since it expects a base image to be used.
 It would be possible and understandable to use the 'busybox' image, and build
 from there, but also to have a mkimage-slackware.sh to build the base image.
 
-== build
+build
+=====
 
 Currently, using the installer bootstrap, the mkimage-slackware can create an
 ultra-minimal slackware filesystem. (does not even include pkgtools)
@@ -23,10 +26,21 @@ Then you will be able to run:
 (This will be the environment to build out the Dockerfile from)
 (( see http://www.docker.io/learn/dockerfile/level1/ for more info on that ))
 
-== Contributing
+Index
+=====
+
+Once the 'vbatts/slackware' build on https://index.docker.io/ is updated, then
+running the following will fetch it:
+
+	$> sudo docker run -i -t vbatts/slackware /bin/sh
+
+Contributing
+============
 please hack on this and send feedback!
 
-== License
+License
+=======
+
 Copyright (c) 2013, Vincent Batts <vbatts@hashbangbash.com>
 All rights reserved.
 
