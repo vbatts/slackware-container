@@ -37,6 +37,12 @@ relbase=$(echo ${RELEASE} | cut -d- -f1)
 	#tar xf ${l_pkg}
 #done
 for pkg in \
+	a/pkgtools-14.1-noarch-2.tgz \
+	a/tar-1.26-x86_64-1.tgz \
+	a/xz-5.0.5-x86_64-1.tgz \
+	n/wget-1.14-x86_64-2.txz \
+	a/elvis-2.2_0-x86_64-2.txz \
+	ap/slackpkg-2.82.0-noarch-12.tgz \
 	a/aaa_terminfo-5.8-x86_64-1.txz \
 	a/acpid-2.0.19-x86_64-1.txz \
 	a/apmd-3.2.2-x86_64-3.txz \
@@ -46,13 +52,9 @@ for pkg in \
 	a/dialog-1.2_20130523-x86_64-1.txz \
 	a/dosfstools-3.0.22-x86_64-1.txz \
 	a/ed-1.9-x86_64-1.txz \
-	a/efibootmgr-0.5.4-x86_64-1.txz \
 	a/eject-2.1.5-x86_64-4.txz \
-	a/elilo-3.14-x86_64-6.txz \
 	a/file-5.14-x86_64-1.txz \
 	a/gettext-0.18.2.1-x86_64-2.txz \
-	a/gpm-1.20.7-x86_64-2.txz \
-	a/grub-2.00-x86_64-2.txz \
 	a/inotify-tools-3.14-x86_64-1.txz \
 	a/kbd-1.15.3-x86_64-2.txz \
 	a/kernel-generic-3.10.17-x86_64-3.txz \
@@ -61,10 +63,8 @@ for pkg in \
 	a/lvm2-2.02.100-x86_64-1.txz \
 	a/mcelog-1.0pre3-x86_64-1.txz \
 	a/minicom-2.6.2-x86_64-1.txz \
-	a/mkinitrd-1.4.8-x86_64-2.txz \
 	a/mtx-1.3.12-x86_64-1.txz \
 	a/ncompress-4.2.4.3-x86_64-1.txz \
-	a/os-prober-1.63-x86_64-1.txz \
 	a/patch-2.7-x86_64-2.txz \
 	a/pciutils-3.2.0-x86_64-1.txz \
 	a/pcmciautils-017-x86_64-1.txz \

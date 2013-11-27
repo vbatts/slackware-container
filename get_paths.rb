@@ -84,7 +84,7 @@ end
 r = Slackware::Repo.new
 r.tagfiles
 r.pkgs.each do |pkg|
-  puts pkg if pkg.tag == "REC"
+  puts "#{pkg}:#{pkg.tag}" unless pkg.tag.nil?
 end
 
 
