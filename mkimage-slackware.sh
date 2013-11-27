@@ -4,7 +4,7 @@
 
 set -e
 
-IMG_NAME="slackware"
+IMG_NAME=${IMG_NAME:-"$USER/slackware"}
 RELEASE=${RELEASE:-"slackware64-14.1"}
 MIRROR=${MIRROR:-"http://slackware.osuosl.org"}
 CACHEFS=${CACHEFS:-"/tmp/slackware/${RELEASE}"}
