@@ -17,7 +17,7 @@ function cacheit() {
 	if [ ! -f "${CACHEFS}/${file}"  ] ; then
 		mkdir -p $(dirname ${CACHEFS}/${file})
 		echo "Fetching $file" 1>&2
-		curl -o "${CACHEFS}/${file}" "${MIRROR}/${RELEASE}/${file}"
+		curl -s -o "${CACHEFS}/${file}" "${MIRROR}/${RELEASE}/${file}"
 	fi
 	echo "${CACHEFS}/${file}"
 }
@@ -37,37 +37,33 @@ relbase=$(echo ${RELEASE} | cut -d- -f1)
 	#tar xf ${l_pkg}
 #done
 for pkg in \
+	a/aaa_base-14.1-x86_64-1.txz \
+	a/aaa_elflibs-14.1-x86_64-3.txz \
 	a/pkgtools-14.1-noarch-2.tgz \
 	a/tar-1.26-x86_64-1.tgz \
 	a/xz-5.0.5-x86_64-1.tgz \
+	a/gzip-1.6-x86_64-1.txz \
 	n/wget-1.14-x86_64-2.txz \
+	n/gnupg-1.4.15-x86_64-1.txz \
 	a/elvis-2.2_0-x86_64-2.txz \
 	ap/slackpkg-2.82.0-noarch-12.tgz \
+	a/sed-4.2.2-x86_64-1.txz \
 	a/aaa_terminfo-5.8-x86_64-1.txz \
-	a/acpid-2.0.19-x86_64-1.txz \
-	a/apmd-3.2.2-x86_64-3.txz \
 	a/btrfs-progs-20130418-x86_64-1.txz \
-	a/cups-1.5.4-x86_64-3.txz \
 	a/dbus-1.6.12-x86_64-1.txz \
 	a/dialog-1.2_20130523-x86_64-1.txz \
 	a/dosfstools-3.0.22-x86_64-1.txz \
 	a/ed-1.9-x86_64-1.txz \
-	a/eject-2.1.5-x86_64-4.txz \
 	a/file-5.14-x86_64-1.txz \
 	a/gettext-0.18.2.1-x86_64-2.txz \
 	a/inotify-tools-3.14-x86_64-1.txz \
-	a/kbd-1.15.3-x86_64-2.txz \
-	a/kernel-generic-3.10.17-x86_64-3.txz \
 	a/lha-114i-x86_64-1.txz \
 	a/libcgroup-0.38-x86_64-2.txz \
 	a/lvm2-2.02.100-x86_64-1.txz \
 	a/mcelog-1.0pre3-x86_64-1.txz \
-	a/minicom-2.6.2-x86_64-1.txz \
 	a/mtx-1.3.12-x86_64-1.txz \
 	a/ncompress-4.2.4.3-x86_64-1.txz \
 	a/patch-2.7-x86_64-2.txz \
-	a/pciutils-3.2.0-x86_64-1.txz \
-	a/pcmciautils-017-x86_64-1.txz \
 	a/rpm2tgz-1.2.2-x86_64-1.txz \
 	a/splitvt-1.6.5-x86_64-1.txz \
 	a/sysfsutils-2.1.0-x86_64-1.txz \
@@ -84,8 +80,9 @@ for pkg in \
 do
 	l_pkg=$(cacheit $relbase/$pkg)
 	./usr/lib/setup/installpkg --root $(pwd) --terse ${l_pkg}
-	#tar xf ${l_pkg}
 done
+
+echo "${MIRROR}/${RELEASE}/" >> etc/slackpkg/mirrors
 
 
 tar --numeric-owner -cf- . | docker import - ${IMG_NAME}
