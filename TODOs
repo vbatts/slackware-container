@@ -1,0 +1,1 @@
+* make an erb to render the dockerfile, from current repo info. Then i can even make versioned builds
