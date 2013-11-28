@@ -3,8 +3,8 @@
 # and load it into the local docker under the name "slackware".
 
 set -e
-
-IMG_NAME=${IMG_NAME:-"$USER/slackware"}
+user=${SUDO_USER:-${USER}}
+IMG_NAME=${IMG_NAME:-"${user}/slackware-base"}
 RELEASE=${RELEASE:-"slackware64-14.1"}
 MIRROR=${MIRROR:-"http://slackware.osuosl.org"}
 CACHEFS=${CACHEFS:-"/tmp/slackware/${RELEASE}"}
@@ -36,19 +36,25 @@ relbase=$(echo ${RELEASE} | cut -d- -f1)
 	#echo $l_pkg
 	#tar xf ${l_pkg}
 #done
+export PATH=$(pwd)/bin:$(pwd)/sbin:$(pwd)/usr/bin:$(pwd)/usr/sbin:$PATH
 for pkg in \
 	a/aaa_base-14.1-x86_64-1.txz \
 	a/aaa_elflibs-14.1-x86_64-3.txz \
+	a/aaa_terminfo-5.8-x86_64-1.txz \
 	a/pkgtools-14.1-noarch-2.tgz \
 	a/tar-1.26-x86_64-1.tgz \
 	a/xz-5.0.5-x86_64-1.tgz \
+	a/etc-14.1-x86_64-2.txz \
 	a/gzip-1.6-x86_64-1.txz \
 	n/wget-1.14-x86_64-2.txz \
 	n/gnupg-1.4.15-x86_64-1.txz \
 	a/elvis-2.2_0-x86_64-2.txz \
 	ap/slackpkg-2.82.0-noarch-12.tgz \
+	l/ncurses-5.9-x86_64-2.txz \
+	a/bin-11.1-x86_64-1.txz \
+	a/bzip2-1.0.6-x86_64-1.txz \
+	a/grep-2.14-x86_64-1.txz \
 	a/sed-4.2.2-x86_64-1.txz \
-	a/aaa_terminfo-5.8-x86_64-1.txz \
 	a/btrfs-progs-20130418-x86_64-1.txz \
 	a/dbus-1.6.12-x86_64-1.txz \
 	a/dialog-1.2_20130523-x86_64-1.txz \
@@ -64,8 +70,6 @@ for pkg in \
 	a/mtx-1.3.12-x86_64-1.txz \
 	a/ncompress-4.2.4.3-x86_64-1.txz \
 	a/patch-2.7-x86_64-2.txz \
-	a/rpm2tgz-1.2.2-x86_64-1.txz \
-	a/splitvt-1.6.5-x86_64-1.txz \
 	a/sysfsutils-2.1.0-x86_64-1.txz \
 	a/tcsh-6.18.01-x86_64-2.txz \
 	a/time-1.7-x86_64-1.txz \
@@ -73,7 +77,6 @@ for pkg in \
 	a/udisks-1.0.4-x86_64-2.txz \
 	a/udisks2-2.1.0-x86_64-1.txz \
 	a/unarj-265-x86_64-1.txz \
-	a/upower-0.9.17-x86_64-1.txz \
 	a/utempter-1.1.5-x86_64-1.txz \
 	a/which-2.20-x86_64-1.txz \
 	a/zoo-2.10_22-x86_64-1.txz
@@ -84,6 +87,7 @@ done
 
 echo "${MIRROR}/${RELEASE}/" >> etc/slackpkg/mirrors
 
+#chroot . ./bin/bash
 
 tar --numeric-owner -cf- . | docker import - ${IMG_NAME}
 docker run -i -u root ${IMG_NAME} /bin/echo Success.
