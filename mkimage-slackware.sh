@@ -10,8 +10,6 @@ MIRROR=${MIRROR:-"http://slackware.osuosl.org"}
 CACHEFS=${CACHEFS:-"/tmp/slackware/${RELEASE}"}
 ROOTFS=${ROOTFS:-"/tmp/rootfs-${IMG_NAME}-$$-${RANDOM}"}
 
-mkdir -p $ROOTFS $CACHEFS
-
 function cacheit() {
 	file=$1
 	if [ ! -f "${CACHEFS}/${file}"  ] ; then
@@ -19,24 +17,33 @@ function cacheit() {
 		echo "Fetching $file" 1>&2
 		curl -s -o "${CACHEFS}/${file}" "${MIRROR}/${RELEASE}/${file}"
 	fi
-	echo "${CACHEFS}/${file}"
+	echo "/cdrom/${file}"
 }
+
+mkdir -p $ROOTFS $CACHEFS
 
 cacheit "isolinux/initrd.img"
 
 cd $ROOTFS
 # extract the initrd to the current rootfs
 zcat "${CACHEFS}/isolinux/initrd.img" | cpio -idvm --null --no-absolute-filenames
-touch etc/resolv.conf
+
+rm $ROOTFS/cdrom
+mkdir -p $ROOTFS/{mnt,cdrom,dev,proc,sys}
+
+for dir in cdrom dev sys prod ; do
+	if findmnt | grep -q $ROOTFS/$dir  ; then
+		umount $ROOTFS/$dir
+	fi
+done
+
+mount --bind $CACHEFS ${ROOTFS}/cdrom
+mount --bind /dev ${ROOTFS}/dev
+mount --bind /sys ${ROOTFS}/sys
+mount --bind /proc ${ROOTFS}/proc
 
 relbase=$(echo ${RELEASE} | cut -d- -f1)
 #for pkg in $(curl -s ${MIRROR}/${RELEASE}/${RELBASE}/a/tagfile | grep REC$ | cut -d : -f 1)
-#do
-	#l_pkg=$(cacheit ${RELBASE}/${pkg}-*.t?z)
-	#echo $l_pkg
-	#tar xf ${l_pkg}
-#done
-export PATH=$(pwd)/bin:$(pwd)/sbin:$(pwd)/usr/bin:$(pwd)/usr/sbin:$PATH
 for pkg in \
 	a/aaa_base-14.1-x86_64-1.txz \
 	a/aaa_elflibs-14.1-x86_64-3.txz \
@@ -49,6 +56,7 @@ for pkg in \
 	n/wget-1.14-x86_64-2.txz \
 	n/gnupg-1.4.15-x86_64-1.txz \
 	a/elvis-2.2_0-x86_64-2.txz \
+	a/coreutils-8.21-x86_64-1.txz \
 	ap/slackpkg-2.82.0-noarch-12.tgz \
 	l/ncurses-5.9-x86_64-2.txz \
 	a/bin-11.1-x86_64-1.txz \
@@ -82,12 +90,20 @@ for pkg in \
 	a/zoo-2.10_22-x86_64-1.txz
 do
 	l_pkg=$(cacheit $relbase/$pkg)
-	./usr/lib/setup/installpkg --root $(pwd) --terse ${l_pkg}
+	PATH=/bin:/sbin:/usr/bin:/usr/sbin \
+	chroot . /usr/lib/setup/installpkg --root /mnt --terse ${l_pkg}
 done
 
+cd mnt
+touch etc/resolv.conf
 echo "${MIRROR}/${RELEASE}/" >> etc/slackpkg/mirrors
-
 #chroot . ./bin/bash
 
 tar --numeric-owner -cf- . | docker import - ${IMG_NAME}
 docker run -i -u root ${IMG_NAME} /bin/echo Success.
+
+for dir in cdrom dev sys prod ; do
+	umount $ROOTFS/${dir}
+done
+
+
