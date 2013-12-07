@@ -11,12 +11,15 @@ image: mkimage-slackware.sh
 		ROOTFS=$(ROOTFS) \
 		sh $<
 
-.PHONY: clean
-clean:
+.PHONY: umount
+umount:
 	@sudo umount $(ROOTFS)/cdrom || :
 	@sudo umount $(ROOTFS)/dev || :
 	@sudo umount $(ROOTFS)/sys || :
 	@sudo umount $(ROOTFS)/proc || :
+
+.PHONY: clean
+clean: umount
 	sudo rm -rf $(ROOTFS)
 
 .PHONY: dist-clean

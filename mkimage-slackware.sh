@@ -8,7 +8,8 @@ IMG_NAME=${IMG_NAME:-"${user}/slackware-base"}
 RELEASE=${RELEASE:-"slackware64-14.1"}
 MIRROR=${MIRROR:-"http://slackware.osuosl.org"}
 CACHEFS=${CACHEFS:-"/tmp/slackware/${RELEASE}"}
-ROOTFS=${ROOTFS:-"/tmp/rootfs-${IMG_NAME}-$$-${RANDOM}"}
+#ROOTFS=${ROOTFS:-"/tmp/rootfs-${IMG_NAME}-$$-${RANDOM}"}
+ROOTFS=${ROOTFS:-"/tmp/rootfs-${IMG_NAME}"}
 
 function cacheit() {
 	file=$1
@@ -28,7 +29,9 @@ cd $ROOTFS
 # extract the initrd to the current rootfs
 zcat "${CACHEFS}/isolinux/initrd.img" | cpio -idvm --null --no-absolute-filenames
 
-rm $ROOTFS/cdrom
+if stat -c %F $ROOTFS/cdrom | grep -q "symbolic link" ; then
+	rm $ROOTFS/cdrom
+fi
 mkdir -p $ROOTFS/{mnt,cdrom,dev,proc,sys}
 
 for dir in cdrom dev sys prod ; do
@@ -38,27 +41,32 @@ for dir in cdrom dev sys prod ; do
 done
 
 mount --bind $CACHEFS ${ROOTFS}/cdrom
-mount --bind /dev ${ROOTFS}/dev
+#mount --bind /dev ${ROOTFS}/dev
 mount --bind /sys ${ROOTFS}/sys
 mount --bind /proc ${ROOTFS}/proc
+
+mkdir -p mnt/etc
+cp etc/ld.so.conf mnt/etc
 
 relbase=$(echo ${RELEASE} | cut -d- -f1)
 #for pkg in $(curl -s ${MIRROR}/${RELEASE}/${RELBASE}/a/tagfile | grep REC$ | cut -d : -f 1)
 for pkg in \
 	a/aaa_base-14.1-x86_64-1.txz \
 	a/aaa_elflibs-14.1-x86_64-3.txz \
+	a/coreutils-8.21-x86_64-1.txz \
+	a/glibc-solibs-2.17-x86_64-7.txz \
 	a/aaa_terminfo-5.8-x86_64-1.txz \
 	a/pkgtools-14.1-noarch-2.tgz \
 	a/tar-1.26-x86_64-1.tgz \
 	a/xz-5.0.5-x86_64-1.tgz \
 	a/bash-4.2.045-x86_64-1.txz \
 	ap/ksh93-2012_08_01-x86_64-1.txz \
+	l/glibc-2.17-x86_64-7.txz \
 	a/etc-14.1-x86_64-2.txz \
 	a/gzip-1.6-x86_64-1.txz \
 	n/wget-1.14-x86_64-2.txz \
 	n/gnupg-1.4.15-x86_64-1.txz \
 	a/elvis-2.2_0-x86_64-2.txz \
-	a/coreutils-8.21-x86_64-1.txz \
 	ap/slackpkg-2.82.0-noarch-12.tgz \
 	l/ncurses-5.9-x86_64-2.txz \
 	a/bin-11.1-x86_64-1.txz \
@@ -71,6 +79,8 @@ for pkg in \
 	a/dosfstools-3.0.22-x86_64-1.txz \
 	a/ed-1.9-x86_64-1.txz \
 	a/file-5.14-x86_64-1.txz \
+	a/gawk-4.1.0-x86_64-2.txz \
+	a/time-1.7-x86_64-1.txz \
 	a/gettext-0.18.2.1-x86_64-2.txz \
 	a/inotify-tools-3.14-x86_64-1.txz \
 	a/lha-114i-x86_64-1.txz \
@@ -89,7 +99,11 @@ for pkg in \
 	a/unarj-265-x86_64-1.txz \
 	a/utempter-1.1.5-x86_64-1.txz \
 	a/which-2.20-x86_64-1.txz \
-	a/zoo-2.10_22-x86_64-1.txz
+	a/util-linux-2.21.2-x86_64-6.txz \
+	l/mpfr-3.1.2-x86_64-1.txz \
+	ap/diffutils-3.3-x86_64-1.txz \
+	a/findutils-4.4.2-x86_64-1.txz \
+	n/openssl-1.0.1e-x86_64-1.txz
 do
 	l_pkg=$(cacheit $relbase/$pkg)
 	PATH=/bin:/sbin:/usr/bin:/usr/sbin \
@@ -99,13 +113,15 @@ done
 cd mnt
 touch etc/resolv.conf
 echo "${MIRROR}/${RELEASE}/" >> etc/slackpkg/mirrors
-#chroot . ./bin/bash
+sed -i 's/DIALOG=on/DIALOG=off/' etc/slackpkg/slackpkg.conf
 
 tar --numeric-owner -cf- . | docker import - ${IMG_NAME}
 docker run -i -u root ${IMG_NAME} /bin/echo Success.
 
 for dir in cdrom dev sys prod ; do
-	umount $ROOTFS/${dir}
+	if findmnt | grep -q $ROOTFS/$dir  ; then
+		umount $ROOTFS/$dir
+	fi
 done
 
 
