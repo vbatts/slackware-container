@@ -51,6 +51,8 @@ for pkg in \
 	a/pkgtools-14.1-noarch-2.tgz \
 	a/tar-1.26-x86_64-1.tgz \
 	a/xz-5.0.5-x86_64-1.tgz \
+	a/bash-4.2.045-x86_64-1.txz \
+	ap/ksh93-2012_08_01-x86_64-1.txz \
 	a/etc-14.1-x86_64-2.txz \
 	a/gzip-1.6-x86_64-1.txz \
 	n/wget-1.14-x86_64-2.txz \
