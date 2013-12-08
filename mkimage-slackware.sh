@@ -102,7 +102,10 @@ for pkg in \
 	a/util-linux-2.21.2-x86_64-6.txz \
 	l/mpfr-3.1.2-x86_64-1.txz \
 	ap/diffutils-3.3-x86_64-1.txz \
+	a/procps-3.2.8-x86_64-4.txz \
+	n/net-tools-1.60.20120726git-x86_64-1.txz \
 	a/findutils-4.4.2-x86_64-1.txz \
+	n/iproute2-3.10.0-x86_64-2.txz \
 	n/openssl-1.0.1e-x86_64-1.txz
 do
 	l_pkg=$(cacheit $relbase/$pkg)
@@ -111,12 +114,15 @@ do
 done
 
 cd mnt
+cp -a ../dev/* dev/
 touch etc/resolv.conf
 echo "export TERM=linux" >> etc/profile.d/term.sh
 chmod +x etc/profile.d/term.sh
 echo ". /etc/profile" > .bashrc
 echo "${MIRROR}/${RELEASE}/" >> etc/slackpkg/mirrors
 sed -i 's/DIALOG=on/DIALOG=off/' etc/slackpkg/slackpkg.conf
+sed -i 's/POSTINST=on/POSTINST=off/' etc/slackpkg/slackpkg.conf
+sed -i 's/SPINNING=on/SPINNING=off/' etc/slackpkg/slackpkg.conf
 
 tar --numeric-owner -cf- . | docker import - ${IMG_NAME}
 docker run -i -u root ${IMG_NAME} /bin/echo Success.
