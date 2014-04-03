@@ -80,11 +80,13 @@ module Slackware
   end
 end
 
-# build out the tag files
-r = Slackware::Repo.new
-r.tagfiles
-r.pkgs.each do |pkg|
-  puts "#{pkg}:#{pkg.tag}" unless pkg.tag.nil?
+def main(args)
+  # build out the tag files
+  r = Slackware::Repo.new(args.first)
+  r.tagfiles
+  r.pkgs.each do |pkg|
+    puts "#{pkg}:#{pkg.tag}" unless pkg.tag.nil?
+  end
 end
 
-
+main(ARGV)

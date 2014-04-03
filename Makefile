@@ -20,7 +20,7 @@ umount:
 
 .PHONY: clean
 clean: umount
-	sudo rm -rf $(ROOTFS)
+	sudo rm -rf $(ROOTFS) $(CACHEFS)/paths
 
 .PHONY: dist-clean
 dist-clean: clean

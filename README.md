@@ -21,18 +21,27 @@ ultra-minimal slackware filesystem. (does not even include pkgtools)
 
 Then you will be able to run:
 
-	$> sudo docker run -i -t slackware /bin/sh
+	$> sudo docker run -i -t $USER/slackware-base /bin/sh
 
 (This will be the environment to build out the Dockerfile from)
 (( see http://www.docker.io/learn/dockerfile/level1/ for more info on that ))
 
+
+To build alternate versions of slackware, pass gnu-make the RELEASE variable, like:
+
+	$> make image RELEASE=slackware64-13.37 IMG_NAME=$HOME/my_slackware:13.37
+
 Index
 =====
 
-Once the 'vbatts/slackware' build on https://index.docker.io/ is updated, then
-running the following will fetch it:
+This is this build process used to be the base of 'vbatts/slackware' on the
+http://index.docker.io/
+
+Just running:
 
 	$> sudo docker run -i -t vbatts/slackware /bin/sh
+
+Will pull down this image for testing.
 
 Contributing
 ============
