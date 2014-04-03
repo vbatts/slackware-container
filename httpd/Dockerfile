@@ -5,6 +5,6 @@ RUN slackpkg install -batch=on -default_answer=y httpd-2.4.6-x86_64-1 apr-util-1
 RUN chmod +x /etc/rc.d/rc.httpd
 EXPOSE 80
 VOLUME ["/var/www","/etc/httpd","/var/log/httpd"]
-ENTRYPOINT ["sh","-c", "/etc/rc.d/rc.httpd start && tail -f /var/log/httpd/*_log"]
+ENTRYPOINT ["sh","-c", "/usr/sbin/httpd -DFOREGROUND"]
 
 # docker run -p 6666:80 vbatts/slackware-httpd 
