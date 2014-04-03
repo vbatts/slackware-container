@@ -9,7 +9,7 @@ image: mkimage-slackware.sh
 		MIRROR=$(MIRROR) \
 		CACHEFS=$(CACHEFS) \
 		ROOTFS=$(ROOTFS) \
-		sh $<
+		bash $<
 
 .PHONY: umount
 umount:
