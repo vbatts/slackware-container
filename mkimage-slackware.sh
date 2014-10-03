@@ -76,7 +76,7 @@ if stat -c %F $ROOTFS/cdrom | grep -q "symbolic link" ; then
 fi
 mkdir -p $ROOTFS/{mnt,cdrom,dev,proc,sys}
 
-for dir in cdrom dev sys prod ; do
+for dir in cdrom dev sys proc ; do
 	if findmnt | grep -q $ROOTFS/$dir  ; then
 		umount $ROOTFS/$dir
 	fi
@@ -120,7 +120,7 @@ sed -i 's/SPINNING=on/SPINNING=off/' etc/slackpkg/slackpkg.conf
 tar --numeric-owner -cf- . | docker import - ${IMG_NAME}
 docker run -i -u root ${IMG_NAME} /bin/echo Success.
 
-for dir in cdrom dev sys prod ; do
+for dir in cdrom dev sys proc ; do
 	if findmnt | grep -q $ROOTFS/$dir  ; then
 		umount $ROOTFS/$dir
 	fi
