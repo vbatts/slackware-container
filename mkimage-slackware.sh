@@ -77,7 +77,7 @@ fi
 mkdir -p $ROOTFS/{mnt,cdrom,dev,proc,sys}
 
 for dir in cdrom dev sys proc ; do
-	if findmnt | grep -q $ROOTFS/$dir  ; then
+	if mount | grep -q $ROOTFS/$dir  ; then
 		umount $ROOTFS/$dir
 	fi
 done
@@ -117,11 +117,17 @@ sed -i 's/DIALOG=on/DIALOG=off/' etc/slackpkg/slackpkg.conf
 sed -i 's/POSTINST=on/POSTINST=off/' etc/slackpkg/slackpkg.conf
 sed -i 's/SPINNING=on/SPINNING=off/' etc/slackpkg/slackpkg.conf
 
+mount --bind /etc/resolv.conf etc/resolv.conf
+chroot . slackpkg -batch=on -default_answer=y update
+chroot . slackpkg -batch=on -default_answer=y upgrade-all
+rm -rf var/lib/slackpkg/*
+umount etc/resolv.conf
+
 tar --numeric-owner -cf- . | docker import - ${IMG_NAME}
 docker run -i -u root ${IMG_NAME} /bin/echo Success.
 
 for dir in cdrom dev sys proc ; do
-	if findmnt | grep -q $ROOTFS/$dir  ; then
+	if mount | grep -q $ROOTFS/$dir  ; then
 		umount $ROOTFS/$dir
 	fi
 done

@@ -17,6 +17,7 @@ umount:
 	@sudo umount $(ROOTFS)/dev || :
 	@sudo umount $(ROOTFS)/sys || :
 	@sudo umount $(ROOTFS)/proc || :
+	@sudo umount $(ROOTFS)/etc/resolv.conf || :
 
 .PHONY: clean
 clean: umount
