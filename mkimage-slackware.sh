@@ -5,7 +5,8 @@
 set -e
 user=${SUDO_USER:-${USER}}
 IMG_NAME=${IMG_NAME:-"${user}/slackware-base"}
-RELEASE=${RELEASE:-"slackware64-14.1"}
+VERSION=${VERSION:="14.1"}
+RELEASE=${RELEASE:-"slackware64-${VERSION}"}
 MIRROR=${MIRROR:-"http://slackware.osuosl.org"}
 CACHEFS=${CACHEFS:-"/tmp/slackware/${RELEASE}"}
 #ROOTFS=${ROOTFS:-"/tmp/rootfs-${IMG_NAME}-$$-${RANDOM}"}
@@ -123,8 +124,10 @@ chroot . slackpkg -batch=on -default_answer=y upgrade-all
 rm -rf var/lib/slackpkg/*
 umount etc/resolv.conf
 
-tar --numeric-owner -cf- . | docker import - ${IMG_NAME}
-docker run -i -u root ${IMG_NAME} /bin/echo Success.
+tar --numeric-owner -cf- . > ${CWD}/${USER}-${RELEASE}.tar
+cat ${CWD}/${USER}-${RELEASE}.tar | docker import - ${IMG_NAME}:${VERSION}
+docker run -i -u root ${IMG_NAME}:${VERSION} /bin/echo "${IMG_NAME}:${VERSION} :: Success."
+ls -sh ${CWD}/${USER}-${RELEASE}.tar
 
 for dir in cdrom dev sys proc ; do
 	if mount | grep -q $ROOTFS/$dir  ; then
