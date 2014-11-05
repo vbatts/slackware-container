@@ -6,11 +6,11 @@ ROOTFS := /tmp/rootfs-slackware
 
 image: mkimage-slackware.sh
 	sudo \
-		VERSION=$(VERSION) \
-		RELEASE=$(RELEASE) \
-		MIRROR=$(MIRROR) \
-		CACHEFS=$(CACHEFS) \
-		ROOTFS=$(ROOTFS) \
+		VERSION="$(VERSION)" \
+		RELEASE="$(RELEASE)" \
+		MIRROR="$(MIRROR)" \
+		CACHEFS="$(CACHEFS)" \
+		ROOTFS="$(ROOTFS)" \
 		bash $<
 
 .PHONY: umount
