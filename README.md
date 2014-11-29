@@ -24,7 +24,7 @@ Then you will be able to run:
 	$> sudo docker run -i -t $USER/slackware-base /bin/sh
 
 (This will be the environment to build out the Dockerfile from)
-(( see http://www.docker.io/learn/dockerfile/level1/ for more info on that ))
+(( see http://docs.docker.com/reference/builder/ for more info on that ))
 
 
 To build alternate versions of slackware, pass gnu-make the RELEASE variable, like:
