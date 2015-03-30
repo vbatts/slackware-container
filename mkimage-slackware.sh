@@ -109,6 +109,7 @@ done
 
 cd mnt
 cp -a ../dev/* dev/
+set -x
 touch etc/resolv.conf
 echo "export TERM=linux" >> etc/profile.d/term.sh
 chmod +x etc/profile.d/term.sh
@@ -119,8 +120,8 @@ sed -i 's/POSTINST=on/POSTINST=off/' etc/slackpkg/slackpkg.conf
 sed -i 's/SPINNING=on/SPINNING=off/' etc/slackpkg/slackpkg.conf
 
 mount --bind /etc/resolv.conf etc/resolv.conf
-chroot . slackpkg -batch=on -default_answer=y update
-chroot . slackpkg -batch=on -default_answer=y upgrade-all
+chroot . sh -c 'slackpkg -batch=on -default_answer=y update && slackpkg -batch=on -default_answer=y upgrade-all'
+set +x
 rm -rf var/lib/slackpkg/*
 umount etc/resolv.conf
 
