@@ -1,0 +1,5 @@
+FROM FROM_IMAGE
+RUN slackpkg update && \
+	slackpkg upgrade-all -default_answer=yes -batch=yes && \
+	slackpkg install -default_answer=yes -batch=yes a/* ap/* n/* d/* k/* l/* kde/*
+
