@@ -9,7 +9,12 @@ NAME		?= $(REGISTRY)/$(USER)/$(shell basename $(FROM_IMAGE))-dev:$(FROM_TAG)
 default: build
 
 Dockerfile: Dockerfile.in
-	m4 --define=DEV_USER=$(USER) --define=FROM_IMAGE=$(FROM) $< > $@
+	m4 \
+	--define=DEV_USER=$(USER) \
+	--define=DEV_UID=$(shell id -u $(USER)) \
+	--define=DEV_GID=$(shell id -g $(USER)) \
+	--define=FROM_IMAGE=$(FROM) \
+	$< > $@
 
 build: .build
 
