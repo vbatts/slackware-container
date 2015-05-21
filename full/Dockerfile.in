@@ -4,7 +4,7 @@ RUN slackpkg update && \
 	slackpkg install -default_answer=yes -batch=yes a/* ap/* n/* d/* k/* l/* kde/* y/*
 RUN groupadd -g DEV_GID DEV_USER && \
 	useradd -m -u DEV_UID -g DEV_GID -G wheel DEV_USER && \
-	sed -ri 's/^(%wheel.*)(ALL)$/\1NOPASSWD: \2/' /etc/sudoers
+	sed -ri 's/^# (%wheel.*NOPASSWD.*)$/\1/' /etc/sudoers
 USER DEV_USER
 ENV HOME /home/DEV_USER
 WORKDIR /home/DEV_USER
