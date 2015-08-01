@@ -53,7 +53,11 @@ module Slackware
 
     private
     def _base_rel
-      @release.split("-").first
+      c = @release.split("-").first
+      if c == "slackwarearm"
+        c = "slackware"
+      end
+      return c
     end
   end
 
@@ -82,8 +86,8 @@ end
 
 def main(args)
   # build out the tag files
-  r = Slackware::Repo.new(args.first)
-  r.tagfiles
+  r = Slackware::Repo.new(args[0], args[1])
+  r.tagfiles unless args.first =~ /arm/
   r.pkgs.each do |pkg|
     puts "#{pkg}:#{pkg.tag}" unless pkg.tag.nil?
   end

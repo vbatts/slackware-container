@@ -1,16 +1,20 @@
 VERSION := 14.1
-RELEASE := slackware64-$(VERSION)
-MIRROR := http://slackware.osuosl.org
-CACHEFS := /tmp/slackware/$(RELEASE)
-ROOTFS := /tmp/rootfs-slackware
+#RELEASE := slackware64-$(VERSION)
+#MIRROR := http://slackware.osuosl.org
+#CACHEFS := /tmp/slackware/$(RELEASE)
+#ROOTFS := /tmp/rootfs-slackware
+
+default: image
+
+farts:
+		RELEASE="$(RELEASE)" \
+		MIRROR="$(MIRROR)" \
+		CACHEFS="$(CACHEFS)" \
+		ROOTFS="$(ROOTFS)"
 
 image: mkimage-slackware.sh
 	sudo \
 		VERSION="$(VERSION)" \
-		RELEASE="$(RELEASE)" \
-		MIRROR="$(MIRROR)" \
-		CACHEFS="$(CACHEFS)" \
-		ROOTFS="$(ROOTFS)" \
 		bash $<
 
 .PHONY: umount

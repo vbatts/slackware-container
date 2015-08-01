@@ -3,15 +3,26 @@
 # and load it into the local docker under the name "slackware".
 
 set -e
-user=${SUDO_USER:-${USER}}
-IMG_NAME=${IMG_NAME:-"${user}/slackware-base"}
-VERSION=${VERSION:="14.1"}
-RELEASE=${RELEASE:-"slackware64-${VERSION}"}
-MIRROR=${MIRROR:-"http://slackware.osuosl.org"}
-CACHEFS=${CACHEFS:-"/tmp/slackware/${RELEASE}"}
-#ROOTFS=${ROOTFS:-"/tmp/rootfs-${IMG_NAME}-$$-${RANDOM}"}
-ROOTFS=${ROOTFS:-"/tmp/rootfs-${IMG_NAME}"}
-CWD=$(pwd)
+export ARCH=${ARCH:-$(uname -m)}
+if echo ${ARCH} | grep -q "arm" ; then
+export RELEASE_SUFFIX="arm"
+elif [ x"${ARCH}" = x"x86_64" ] ; then
+export RELEASE_SUFFIX="64"
+fi
+export user=${SUDO_USER:-${USER}}
+export VERSION=${VERSION:="14.1"}
+export IMG_NAME=${IMG_NAME:-"${user}/slackware${RELEASE_SUFFIX}-base"}
+export RELEASE=${RELEASE:-"slackware${RELEASE_SUFFIX}-${VERSION}"}
+export CACHEFS=${CACHEFS:-"/tmp/slackware${RELEASE_SUFFIX}/${RELEASE}"}
+export ROOTFS=${ROOTFS:-"/tmp/rootfs-${IMG_NAME}"}
+if [ x"${RELEASE_SUFFIX}" = x"arm" ] ; then
+export MIRROR=${MIRROR:-"ftp://ftp.arm.slackware.com/slackwarearm"}
+else
+export MIRROR=${MIRROR:-"http://slackware.osuosl.org"}
+fi
+export CWD=$(pwd)
+
+#env && exit
 
 base_pkgs="a/aaa_base \
 	a/aaa_elflibs \
@@ -59,18 +70,23 @@ function cacheit() {
 	if [ ! -f "${CACHEFS}/${file}"  ] ; then
 		mkdir -p $(dirname ${CACHEFS}/${file})
 		echo "Fetching $file" 1>&2
-		curl -s -o "${CACHEFS}/${file}" "${MIRROR}/${RELEASE}/${file}"
+		curl -# -o "${CACHEFS}/${file}" "${MIRROR}/${RELEASE}/${file}"
 	fi
 	echo "/cdrom/${file}"
 }
 
 mkdir -p $ROOTFS $CACHEFS
 
-cacheit "isolinux/initrd.img"
+if [ x"${RELEASE_SUFFIX}" = x"arm" ] ; then
+        export initrd=initrd-versatile.img
+else
+        export initrd=initrd.img
+fi
+cacheit "isolinux/${initrd}"
 
 cd $ROOTFS
 # extract the initrd to the current rootfs
-zcat "${CACHEFS}/isolinux/initrd.img" | cpio -idvm --null --no-absolute-filenames
+zcat "${CACHEFS}/isolinux/${initrd}" | cpio -idvm --null --no-absolute-filenames
 
 if stat -c %F $ROOTFS/cdrom | grep -q "symbolic link" ; then
 	rm $ROOTFS/cdrom
@@ -84,16 +100,16 @@ for dir in cdrom dev sys proc ; do
 done
 
 mount --bind $CACHEFS ${ROOTFS}/cdrom
-#mount --bind /dev ${ROOTFS}/dev
-mount --bind /sys ${ROOTFS}/sys
-mount --bind /proc ${ROOTFS}/proc
+mount --bind -o ro /dev ${ROOTFS}/dev
+mount --bind -o ro /sys ${ROOTFS}/sys
+mount --bind -o ro /proc ${ROOTFS}/proc
 
 mkdir -p mnt/etc
 cp etc/ld.so.conf mnt/etc
 
 relbase=$(echo ${RELEASE} | cut -d- -f1)
 if [ ! -f ${CACHEFS}/paths ] ; then
-	ruby ${CWD}/get_paths.rb ${RELEASE} > ${CACHEFS}/paths
+	ruby ${CWD}/get_paths.rb "${RELEASE}" "${MIRROR}" > ${CACHEFS}/paths
 fi
 for pkg in ${base_pkgs}
 do
