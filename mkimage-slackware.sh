@@ -84,8 +84,8 @@ for dir in cdrom dev sys proc ; do
 done
 
 mount --bind $CACHEFS ${ROOTFS}/cdrom
-#mount --bind /dev ${ROOTFS}/dev
-mount --bind /sys ${ROOTFS}/sys
+mount -t devtmpfs none ${ROOTFS}/dev
+mount --bind -o ro /sys ${ROOTFS}/sys
 mount --bind /proc ${ROOTFS}/proc
 
 mkdir -p mnt/etc
@@ -108,7 +108,6 @@ do
 done
 
 cd mnt
-cp -a ../dev/* dev/
 set -x
 touch etc/resolv.conf
 echo "export TERM=linux" >> etc/profile.d/term.sh
@@ -121,13 +120,19 @@ sed -i 's/SPINNING=on/SPINNING=off/' etc/slackpkg/slackpkg.conf
 
 mount --bind /etc/resolv.conf etc/resolv.conf
 chroot . sh -c 'slackpkg -batch=on -default_answer=y update && slackpkg -batch=on -default_answer=y upgrade-all'
+
+# now some cleanup of the minimal image
 set +x
 rm -rf var/lib/slackpkg/*
+rm -rf usr/share/locale/*
+find usr/share/terminfo/ -type f ! -name 'linux' -a ! -name 'xterm' -a ! -name 'screen.linux' -exec rm -f "{}" \;
+umount $ROOTFS/dev
+rm -f dev/* # containers should expect the kernel API (`mount -t devtmpfs none /dev`)
 umount etc/resolv.conf
 
 tar --numeric-owner -cf- . > ${CWD}/${USER}-${RELEASE}.tar
 cat ${CWD}/${USER}-${RELEASE}.tar | docker import - ${IMG_NAME}:${VERSION}
-docker run -i -u root ${IMG_NAME}:${VERSION} /bin/echo "${IMG_NAME}:${VERSION} :: Success."
+docker run -i --rm ${IMG_NAME}:${VERSION} /bin/echo "${IMG_NAME}:${VERSION} :: Success."
 ls -sh ${CWD}/${USER}-${RELEASE}.tar
 
 for dir in cdrom dev sys proc ; do
