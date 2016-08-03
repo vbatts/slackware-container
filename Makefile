@@ -1,4 +1,4 @@
-VERSION := 14.1
+VERSION := 14.2
 RELEASE := slackware64-$(VERSION)
 MIRROR := http://slackware.osuosl.org
 CACHEFS := /tmp/slackware/$(RELEASE)
@@ -12,6 +12,9 @@ image: mkimage-slackware.sh
 		CACHEFS="$(CACHEFS)" \
 		ROOTFS="$(ROOTFS)" \
 		bash $<
+
+all: build.sh
+	sh ./build.sh
 
 .PHONY: umount
 umount:
