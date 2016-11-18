@@ -1,16 +1,13 @@
 #!/bin/bash
-# Generate a very minimal filesystem from slackware,
-# and load it into the local docker under the name "slackware".
+# Generate a very minimal filesystem from slackware
 
 set -e
-user=${SUDO_USER:-${USER}}
-IMG_NAME=${IMG_NAME:-"${user}/slackware-base"}
+BUILD_NAME=${BUILD_NAME:-"slackware"}
 VERSION=${VERSION:="current"}
 RELEASE=${RELEASE:-"slackware64-${VERSION}"}
 MIRROR=${MIRROR:-"http://slackware.osuosl.org"}
 CACHEFS=${CACHEFS:-"/tmp/slackware/${RELEASE}"}
-#ROOTFS=${ROOTFS:-"/tmp/rootfs-${IMG_NAME}-$$-${RANDOM}"}
-ROOTFS=${ROOTFS:-"/tmp/rootfs-${IMG_NAME}"}
+ROOTFS=${ROOTFS:-"/tmp/rootfs-${BUILD_NAME}"}
 CWD=$(pwd)
 
 base_pkgs="a/aaa_base \
@@ -132,10 +129,8 @@ umount $ROOTFS/dev
 rm -f dev/* # containers should expect the kernel API (`mount -t devtmpfs none /dev`)
 umount etc/resolv.conf
 
-tar --numeric-owner -cf- . > ${CWD}/${USER}-${RELEASE}.tar
-cat ${CWD}/${USER}-${RELEASE}.tar | docker import -c "ENTRYPOINT [\"sh\"]"  - ${IMG_NAME}:${VERSION}
-docker run -i --rm ${IMG_NAME}:${VERSION} /bin/echo "${IMG_NAME}:${VERSION} :: Success."
-ls -sh ${CWD}/${USER}-${RELEASE}.tar
+tar --numeric-owner -cf- . > ${CWD}/${RELEASE}.tar
+ls -sh ${CWD}/${RELEASE}.tar
 
 for dir in cdrom dev sys proc ; do
 	if mount | grep -q $ROOTFS/$dir  ; then

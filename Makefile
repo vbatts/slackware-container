@@ -1,27 +1,28 @@
-LATEST := 14.2
-VERSION := $(LATEST)
-VERSIONS := 13.37 14.0 14.1 14.2 current
-RELEASE := slackware64-$(VERSION)
-MIRROR := http://slackware.osuosl.org
-CACHEFS := /tmp/slackware/$(RELEASE)
-ROOTFS := /tmp/rootfs-slackware
+LATEST		:= 14.2
+VERSION		:= $(LATEST)
+VERSIONS	:= 13.37 14.0 14.1 14.2 current
+NAME		:= slackware
+RELEASE		:= slackware64-$(VERSION)
+MIRROR		:= http://slackware.osuosl.org
+CACHEFS		:= /tmp/$(NAME)/$(RELEASE)
+ROOTFS		:= /tmp/rootfs-$(NAME)
 
-image: mkimage-slackware.sh
+image: slackware64-$(LATEST).tar
+
+slackware64-%.tar: mkimage-slackware.sh
 	sudo \
-		VERSION="$(VERSION)" \
-		RELEASE="$(RELEASE)" \
-		MIRROR="$(MIRROR)" \
-		CACHEFS="$(CACHEFS)" \
-		ROOTFS="$(ROOTFS)" \
+		VERSION="$*" \
+		USER="$(USER)" \
 		bash $<
 
 all: mkimage-slackware.sh
 	for version in $(VERSIONS) ; do \
-		$(MAKE) VERSION=$${version} image && \
+		$(MAKE) slackware64-$${version}.tar && \
 		$(MAKE) VERSION=$${version} clean && \
-		docker tag $(USER)/slackware-base:$${version} $(USER)/slackware:$${version} ;\
+		cat slackware64-$${version}.tar | docker import -c "ENTRYPOINT [\"sh\"]"  - $(USER)/$(NAME):$${version} && \
+		docker run -i --rm $(USER)/$(NAME):$${version} /usr/bin/echo "$(USER)/$(NAME):$${version} :: Success." ; \
 	done && \
-	docker tag $(USER)/slackware-base:$(LATEST) $(USER)/slackware:latest
+	docker tag $(USER)/$(NAME):$(LATEST) $(USER)/$(NAME):latest
 
 .PHONY: umount
 umount:
