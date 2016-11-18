@@ -1,4 +1,6 @@
-VERSION := 14.2
+LATEST := 14.2
+VERSION := $(LATEST)
+VERSIONS := 13.37 14.0 14.1 14.2 current
 RELEASE := slackware64-$(VERSION)
 MIRROR := http://slackware.osuosl.org
 CACHEFS := /tmp/slackware/$(RELEASE)
@@ -13,8 +15,13 @@ image: mkimage-slackware.sh
 		ROOTFS="$(ROOTFS)" \
 		bash $<
 
-all: build.sh
-	sh ./build.sh
+all: mkimage-slackware.sh
+	for version in $(VERSIONS) ; do \
+		$(MAKE) VERSION=$${version} image && \
+		$(MAKE) VERSION=$${version} clean && \
+		docker tag $(USER)/slackware-base:$${version} $(USER)/slackware:$${version} ;\
+	done && \
+	docker tag $(USER)/slackware-base:$(LATEST) $(USER)/slackware:latest
 
 .PHONY: umount
 umount:

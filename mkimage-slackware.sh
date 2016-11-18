@@ -5,7 +5,7 @@
 set -e
 user=${SUDO_USER:-${USER}}
 IMG_NAME=${IMG_NAME:-"${user}/slackware-base"}
-VERSION=${VERSION:="14.1"}
+VERSION=${VERSION:="current"}
 RELEASE=${RELEASE:-"slackware64-${VERSION}"}
 MIRROR=${MIRROR:-"http://slackware.osuosl.org"}
 CACHEFS=${CACHEFS:-"/tmp/slackware/${RELEASE}"}
@@ -19,6 +19,7 @@ base_pkgs="a/aaa_base \
 	a/glibc-solibs \
 	a/aaa_terminfo \
 	a/pkgtools \
+	a/shadow \
 	a/tar \
 	a/xz \
 	a/bash \
@@ -125,13 +126,14 @@ chroot . sh -c 'slackpkg -batch=on -default_answer=y update && slackpkg -batch=o
 set +x
 rm -rf var/lib/slackpkg/*
 rm -rf usr/share/locale/*
+rm -rf usr/man/*
 find usr/share/terminfo/ -type f ! -name 'linux' -a ! -name 'xterm' -a ! -name 'screen.linux' -exec rm -f "{}" \;
 umount $ROOTFS/dev
 rm -f dev/* # containers should expect the kernel API (`mount -t devtmpfs none /dev`)
 umount etc/resolv.conf
 
 tar --numeric-owner -cf- . > ${CWD}/${USER}-${RELEASE}.tar
-cat ${CWD}/${USER}-${RELEASE}.tar | docker import - ${IMG_NAME}:${VERSION}
+cat ${CWD}/${USER}-${RELEASE}.tar | docker import -c "ENTRYPOINT [\"sh\"]"  - ${IMG_NAME}:${VERSION}
 docker run -i --rm ${IMG_NAME}:${VERSION} /bin/echo "${IMG_NAME}:${VERSION} :: Success."
 ls -sh ${CWD}/${USER}-${RELEASE}.tar
 
