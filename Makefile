@@ -2,24 +2,35 @@ LATEST		:= 14.2
 VERSION		:= $(LATEST)
 VERSIONS	:= 13.37 14.0 14.1 14.2 current
 NAME		:= slackware
-RELEASE		:= slackware64-$(VERSION)
+# If SW_ARCH unset, set to default of "64"
+ifeq "${TARGET_ARCH}" "i586"
+	SW_ARCH	:= 
+else ifeq "${TARGET_ARCH}" "i486"
+	SW_ARCH	:= 
+else
+	SW_ARCH	:= 64
+endif
+#SW_ARCH		:= $(shell if [ -z $${TARGET_ARCH+x} ] || [ "$${TARGET_ARCH}" = "x86_64" ]; then echo 64; else echo 32; fi )
+TMP		:= $(shell if [ -z $${TMP+x} ]; then echo /tmp; else echo $${TMP}; fi )
+RELEASE		:= slackware$(SW_ARCH)-$(VERSION)
 MIRROR		:= http://slackware.osuosl.org
-CACHEFS		:= /tmp/$(NAME)/$(RELEASE)
-ROOTFS		:= /tmp/rootfs-$(NAME)
+CACHEFS		:= $(TMP)/$(NAME)/$(RELEASE)
+ROOTFS		:= $(TMP)/rootfs-$(NAME)
 
-image: slackware64-$(LATEST).tar
+image: slackware$(SW_ARCH)-$(LATEST).tar
 
-slackware64-%.tar: mkimage-slackware.sh
+slackware$(SW_ARCH)-$(VERSION).tar: mkimage-slackware.sh
 	sudo \
-		VERSION="$*" \
+		VERSION="$(VERSION)" \
 		USER="$(USER)" \
+		SW_ARCH="$(SW_ARCH)" \
 		bash $<
 
 all: mkimage-slackware.sh
 	for version in $(VERSIONS) ; do \
-		$(MAKE) slackware64-$${version}.tar && \
+		$(MAKE) slackware$(SW_ARCH)-$${version}.tar && \
 		$(MAKE) VERSION=$${version} clean && \
-		cat slackware64-$${version}.tar | docker import -c "ENTRYPOINT [\"sh\"]"  - $(USER)/$(NAME):$${version} && \
+		cat slackware$(SW_ARCH)-$${version}.tar | docker import -c "ENTRYPOINT [\"sh\"]"  - $(USER)/$(NAME):$${version} && \
 		docker run -i --rm $(USER)/$(NAME):$${version} /usr/bin/echo "$(USER)/$(NAME):$${version} :: Success." ; \
 	done && \
 	docker tag $(USER)/$(NAME):$(LATEST) $(USER)/$(NAME):latest

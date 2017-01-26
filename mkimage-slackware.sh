@@ -2,9 +2,10 @@
 # Generate a very minimal filesystem from slackware
 
 set -e
+SW_ARCH=$(( if [ -z ${SW_ARCH+x} ]; then echo 64; else echo ${SW_ARCH}; fi ))
 BUILD_NAME=${BUILD_NAME:-"slackware"}
 VERSION=${VERSION:="current"}
-RELEASE=${RELEASE:-"slackware64-${VERSION}"}
+RELEASE=${RELEASE:-"slackware${SW_ARCH}-${VERSION}"}
 MIRROR=${MIRROR:-"http://slackware.osuosl.org"}
 CACHEFS=${CACHEFS:-"/tmp/slackware/${RELEASE}"}
 ROOTFS=${ROOTFS:-"/tmp/rootfs-${BUILD_NAME}"}
