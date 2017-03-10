@@ -3,8 +3,6 @@ VERSION		:= $(LATEST)
 VERSIONS	:= 13.37 14.0 14.1 14.2 current
 NAME		:= slackware
 MIRROR		:= http://slackware.osuosl.org
-CACHEFS		:= /tmp/$(NAME)/$(RELEASE)
-ROOTFS		:= /tmp/rootfs-$(NAME)
 ifeq ($(shell uname -m),x86_64)
 ARCH := 64
 else ifeq ($(patsubst i%86,x86,$(shell uname -m)),x86)
@@ -18,6 +16,8 @@ ARCH := 64
 endif
 RELEASENAME	:= slackware$(ARCH)
 RELEASE		:= $(RELEASENAME)-$(VERSION)
+CACHEFS		:= /tmp/$(NAME)/$(RELEASE)
+ROOTFS		:= /tmp/rootfs-$(RELEASE)
 
 image: $(RELEASENAME)-$(LATEST).tar
 
