@@ -19,7 +19,7 @@ all: mkimage-slackware.sh
 	for version in $(VERSIONS) ; do \
 		$(MAKE) slackware64-$${version}.tar && \
 		$(MAKE) VERSION=$${version} clean && \
-		cat slackware64-$${version}.tar | docker import -c "ENTRYPOINT [\"sh\"]"  - $(USER)/$(NAME):$${version} && \
+		cat slackware64-$${version}.tar | docker import -c "CMD [\"sh\"]"  - $(USER)/$(NAME):$${version} && \
 		docker run -i --rm $(USER)/$(NAME):$${version} /usr/bin/echo "$(USER)/$(NAME):$${version} :: Success." ; \
 	done && \
 	docker tag $(USER)/$(NAME):$(LATEST) $(USER)/$(NAME):latest
