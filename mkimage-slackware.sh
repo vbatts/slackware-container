@@ -45,6 +45,7 @@ base_pkgs="a/aaa_base \
 	a/which \
 	a/util-linux \
 	l/mpfr \
+	l/libunistring \
 	ap/diffutils \
 	a/procps \
 	n/net-tools \
