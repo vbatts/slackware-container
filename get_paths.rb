@@ -20,6 +20,7 @@ module Slackware
       fl = open("#{@mirror}/#{@release}/#{_base_rel}/FILE_LIST")
       fl.each_line do |line|
         line.strip!
+        puts line
         if line =~ RE_FILELIST 
           @pkgs << Slackware::Package.parse($2 + "/" + $3)
         end

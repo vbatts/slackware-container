@@ -2,9 +2,19 @@
 # Generate a very minimal filesystem from slackware
 
 set -e
+
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) ARCH="" ;;
+    arm*) ARCH=arm ;;
+       *) ARCH=64 ;;
+  esac
+fi
+
 BUILD_NAME=${BUILD_NAME:-"slackware"}
 VERSION=${VERSION:="current"}
-RELEASE=${RELEASE:-"slackware64-${VERSION}"}
+RELEASENAME=${RELEASENAME:-"slackware${ARCH}"}
+RELEASE=${RELEASE:-"${RELEASENAME}-${VERSION}"}
 MIRROR=${MIRROR:-"http://slackware.osuosl.org"}
 CACHEFS=${CACHEFS:-"/tmp/slackware/${RELEASE}"}
 ROOTFS=${ROOTFS:-"/tmp/rootfs-${BUILD_NAME}"}

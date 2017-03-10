@@ -2,14 +2,30 @@ LATEST		:= 14.2
 VERSION		:= $(LATEST)
 VERSIONS	:= 13.37 14.0 14.1 14.2 current
 NAME		:= slackware
-RELEASE		:= slackware64-$(VERSION)
 MIRROR		:= http://slackware.osuosl.org
 CACHEFS		:= /tmp/$(NAME)/$(RELEASE)
 ROOTFS		:= /tmp/rootfs-$(NAME)
+ifeq ($(shell uname -m),x86_64)
+ARCH := 64
+else ifeq ($(patsubst i%86,x86,$(shell uname -m)),x86)
+ARCH :=
+else ifeq ($(shell uname -m),armv6l)
+ARCH := arm
+else ifeq ($(shell uname -m),aarch64)
+ARCH := arm64
+else
+ARCH := 64
+endif
+RELEASENAME	:= slackware$(ARCH)
+RELEASE		:= $(RELEASENAME)-$(VERSION)
 
-image: slackware64-$(LATEST).tar
+image: $(RELEASENAME)-$(LATEST).tar
 
-slackware64-%.tar: mkimage-slackware.sh
+arch:
+	@echo $(ARCH)
+	@echo $(RELEASE)
+
+$(RELEASENAME)-%.tar: mkimage-slackware.sh
 	sudo \
 		VERSION="$*" \
 		USER="$(USER)" \
@@ -17,9 +33,9 @@ slackware64-%.tar: mkimage-slackware.sh
 
 all: mkimage-slackware.sh
 	for version in $(VERSIONS) ; do \
-		$(MAKE) slackware64-$${version}.tar && \
+		$(MAKE) $(RELEASENAME)-$${version}.tar && \
 		$(MAKE) VERSION=$${version} clean && \
-		cat slackware64-$${version}.tar | docker import -c "CMD [\"sh\"]"  - $(USER)/$(NAME):$${version} && \
+		cat $(RELEASENAME)-$${version}.tar | docker import -c "CMD [\"sh\"]"  - $(USER)/$(NAME):$${version} && \
 		docker run -i --rm $(USER)/$(NAME):$${version} /usr/bin/echo "$(USER)/$(NAME):$${version} :: Success." ; \
 	done && \
 	docker tag $(USER)/$(NAME):$(LATEST) $(USER)/$(NAME):latest
