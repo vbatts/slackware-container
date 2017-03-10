@@ -31,10 +31,6 @@ To build alternate versions of slackware, pass gnu-make the RELEASE variable, li
 
 	$> make image RELEASE=slackware64-13.37 IMG_NAME=$HOME/my_slackware:13.37
 
-Or for a 32bit version:
-
-	$> make image TARGET_ARCH=i586 RELEASE=slackware-14.2
-
 Index
 =====
 

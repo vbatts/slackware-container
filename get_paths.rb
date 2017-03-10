@@ -5,7 +5,7 @@ require 'open-uri'
 module Slackware
   class Repo
     DEFAULT_MIRROR = "http://mirrors1.kernel.org/slackware"
-    DEFAULT_RELEASE = "slackware"+ENV["SW_ARCH"]+"-current"
+    DEFAULT_RELEASE = "slackware64-current"
     RE_FILELIST = /.*(\d{4}-\d{2}-\d{2} \d{2}:\d{2})\s\.\/(\w*)\/(.*\.t.z)\n?/
 
     def initialize(release = nil, mirror = nil)
