@@ -1,7 +1,7 @@
 vbatts/slackware
 ================
 
-base image of slackware64-14.1
+base image of slackware64-14.0
 
 Index
 =====
@@ -11,7 +11,7 @@ http://index.docker.io/
 
 Just running:
 
-	$> sudo docker run -i -t vbatts/slackware:14.1 /bin/sh
+	$> sudo docker run -i -t vbatts/slackware:14.0 /bin/sh
 
 Will pull down this image for testing.
 
