@@ -29,13 +29,14 @@ $(RELEASENAME)-%.tar: mkimage-slackware.sh
 	sudo \
 		VERSION="$*" \
 		USER="$(USER)" \
+		BUILD_NAME="$(NAME)" \
 		bash $<
 
 all: mkimage-slackware.sh
 	for version in $(VERSIONS) ; do \
 		$(MAKE) $(RELEASENAME)-$${version}.tar && \
 		$(MAKE) VERSION=$${version} clean && \
-		cat $(RELEASENAME)-$${version}.tar | docker import -c "CMD [\"sh\"]"  - $(USER)/$(NAME):$${version} && \
+		cat $(RELEASENAME)-$${version}.tar | docker import -c "CMD [\"sh\"]" - $(USER)/$(NAME):$${version} && \
 		docker run -i --rm $(USER)/$(NAME):$${version} /usr/bin/echo "$(USER)/$(NAME):$${version} :: Success." ; \
 	done && \
 	docker tag $(USER)/$(NAME):$(LATEST) $(USER)/$(NAME):latest
