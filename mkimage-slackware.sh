@@ -79,7 +79,13 @@ cacheit "isolinux/initrd.img"
 
 cd $ROOTFS
 # extract the initrd to the current rootfs
-zcat "${CACHEFS}/isolinux/initrd.img" | cpio -idvm --null --no-absolute-filenames
+## ./slackware64-14.2/isolinux/initrd.img:    gzip compressed data, last modified: Fri Jun 24 21:14:48 2016, max compression, from Unix, original size 68600832
+## ./slackware64-current/isolinux/initrd.img: XZ compressed data
+if $(file ${CACHEFS}/isolinux/initrd.img | grep -wq XZ) ; then
+	xzcat "${CACHEFS}/isolinux/initrd.img" | cpio -idvm --null --no-absolute-filenames
+else
+	zcat "${CACHEFS}/isolinux/initrd.img" | cpio -idvm --null --no-absolute-filenames
+fi
 
 if stat -c %F $ROOTFS/cdrom | grep -q "symbolic link" ; then
 	rm $ROOTFS/cdrom
@@ -112,8 +118,13 @@ do
 		continue
 	fi
 	l_pkg=$(cacheit $relbase/$path)
-	PATH=/bin:/sbin:/usr/bin:/usr/sbin \
-	chroot . /usr/lib/setup/installpkg --root /mnt --terse ${l_pkg}
+	if [ -e ./sbin/installpkg ] ; then
+		PATH=/bin:/sbin:/usr/bin:/usr/sbin \
+		chroot . /sbin/installpkg --root /mnt --terse ${l_pkg}
+	else
+		PATH=/bin:/sbin:/usr/bin:/usr/sbin \
+		chroot . /usr/lib/setup/installpkg --root /mnt --terse ${l_pkg}
+	fi
 done
 
 cd mnt
@@ -128,7 +139,8 @@ sed -i 's/POSTINST=on/POSTINST=off/' etc/slackpkg/slackpkg.conf
 sed -i 's/SPINNING=on/SPINNING=off/' etc/slackpkg/slackpkg.conf
 
 mount --bind /etc/resolv.conf etc/resolv.conf
-chroot . sh -c '/usr/sbin/slackpkg -batch=on -default_answer=y update && /usr/sbin/slackpkg -batch=on -default_answer=y upgrade-all'
+chroot . sh -c 'yes y | /usr/sbin/slackpkg -batch=on -default_answer=y update'
+chroot . sh -c '/usr/sbin/slackpkg -batch=on -default_answer=y upgrade-all'
 
 # now some cleanup of the minimal image
 set +x
