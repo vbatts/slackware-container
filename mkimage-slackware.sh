@@ -128,7 +128,7 @@ sed -i 's/POSTINST=on/POSTINST=off/' etc/slackpkg/slackpkg.conf
 sed -i 's/SPINNING=on/SPINNING=off/' etc/slackpkg/slackpkg.conf
 
 mount --bind /etc/resolv.conf etc/resolv.conf
-chroot . sh -c 'slackpkg -batch=on -default_answer=y update && slackpkg -batch=on -default_answer=y upgrade-all'
+chroot . sh -c '/usr/sbin/slackpkg -batch=on -default_answer=y update && /usr/sbin/slackpkg -batch=on -default_answer=y upgrade-all'
 
 # now some cleanup of the minimal image
 set +x
