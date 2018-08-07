@@ -3,9 +3,8 @@ DOCKER		?= $(shell which docker)
 FROM_IMAGE	?= vbatts/slackware
 FROM_TAG	?= current
 FROM		?= $(FROM_IMAGE):$(FROM_TAG)
-REGISTRY	?= docker.usersys
 REPO		?= http://slackware.osuosl.org/slackware64-current/
-NAME		?= $(REGISTRY)/$(USER)/$(shell basename $(FROM_IMAGE))-dev:$(FROM_TAG)
+NAME		?= $(USER)/$(shell basename $(FROM_IMAGE))-dev:$(FROM_TAG)
 
 default: build
 

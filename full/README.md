@@ -32,3 +32,23 @@ sudo docker build \
   -t vbatts/slackware-dev:14.2 \
   .
 ```
+
+
+## run
+
+Since the username and UID can match with my user on the host, the workflow I prefer is to wrap my $HOME directory.
+This way all my cloned sources, bashrc, etc. are all the way I would expect.
+A build can be tested from one version to the next fairly straightforward like:
+
+```shell
+sudo docker run \
+  -it \
+  --rm \
+  -v $HOME:$HOME \
+  -v $SSH_AUTH_SOCK:$SSH_AUTH_SOCK \
+  --env SSH_AUTH_SOCK=$SSH_AUTH_SOCK \
+  vbatts/slackware-dev:14.2
+```
+
+This enters an interactive shell, where you everything outside of $HOME is garbage-collected after the shell exits.
+So you can `installpkg`, `upgradepkg`, etc. and not affect your host outside the container.
