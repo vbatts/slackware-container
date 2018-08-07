@@ -52,3 +52,13 @@ sudo docker run \
 
 This enters an interactive shell, where you everything outside of $HOME is garbage-collected after the shell exits.
 So you can `installpkg`, `upgradepkg`, etc. and not affect your host outside the container.
+
+
+## disk usage
+
+Since these are full installs, they are not small.
+At the time of writing this:
+```shell
+docker.usersys/vbatts/slackware-dev   14.2                7f9328de56c8        14 minutes ago      7.13GB
+docker.usersys/vbatts/slackware-dev   current             fc2e36e407ec        3 days ago          9.46GB
+```
