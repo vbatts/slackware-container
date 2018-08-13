@@ -54,6 +54,22 @@ This enters an interactive shell, where you everything outside of $HOME is garba
 So you can `installpkg`, `upgradepkg`, etc. and not affect your host outside the container.
 
 
+OR for an ongoing instance, something like
+```shell
+sudo docker run \
+  -it \
+  --name 14.2 \
+  -d \
+  --restart=always \
+  -v $HOME:$HOME \
+  -v $(dirname $(dirname $SSH_AUTH_SOCK)):/host-tmp/$(dirname $(dirname $SSH_AUTH_SOCK)) \
+  vbatts/slackware-dev:14.2
+```
+
+This will have a container running in the background that will restart even after reboot.
+Just `sudo docker exec -it --env SSH_AUTH_SOCK=/host-tmp/$SSH_AUTH_SOCK 14.2 bash` get a shell in that environment with a workings ssh agent.
+  
+
 ## disk usage
 
 Since these are full installs, they are not small.
