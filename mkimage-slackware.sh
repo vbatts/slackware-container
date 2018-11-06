@@ -15,7 +15,7 @@ BUILD_NAME=${BUILD_NAME:-"slackware"}
 VERSION=${VERSION:="current"}
 RELEASENAME=${RELEASENAME:-"slackware${ARCH}"}
 RELEASE=${RELEASE:-"${RELEASENAME}-${VERSION}"}
-MIRROR=${MIRROR:-"http://slackware.osuosl.org"}
+MIRROR=${MIRROR:-"http://mirrors.slackware.com/slackware"}
 CACHEFS=${CACHEFS:-"/tmp/${BUILD_NAME}/${RELEASE}"}
 ROOTFS=${ROOTFS:-"/tmp/rootfs-${RELEASE}"}
 CWD=$(pwd)
@@ -68,7 +68,7 @@ function cacheit() {
 	if [ ! -f "${CACHEFS}/${file}"  ] ; then
 		mkdir -p $(dirname ${CACHEFS}/${file})
 		echo "Fetching $file" 1>&2
-		curl -s -o "${CACHEFS}/${file}" "${MIRROR}/${RELEASE}/${file}"
+		curl -sSL -o "${CACHEFS}/${file}" "${MIRROR}/${RELEASE}/${file}"
 	fi
 	echo "/cdrom/${file}"
 }
@@ -133,14 +133,24 @@ touch etc/resolv.conf
 echo "export TERM=linux" >> etc/profile.d/term.sh
 chmod +x etc/profile.d/term.sh
 echo ". /etc/profile" > .bashrc
-echo "${MIRROR}/${RELEASE}/" >> etc/slackpkg/mirrors
+
+echo -e "# redirection service for fastest mirror\n${MIRROR}/${RELEASE}/\n" > /tmp/mkimage.mirror.xx
+cat etc/slackpkg/mirrors >> /tmp/mkimage.mirror.xx
+cat /tmp/mkimage.mirror.xx > etc/slackpkg/mirrors.new
+rm -f /tmp/mkimage.mirror.xx
+echo "http://slackware.osuosl.org/${RELEASE}/" > etc/slackpkg/mirrors
+
 sed -i 's/DIALOG=on/DIALOG=off/' etc/slackpkg/slackpkg.conf
 sed -i 's/POSTINST=on/POSTINST=off/' etc/slackpkg/slackpkg.conf
 sed -i 's/SPINNING=on/SPINNING=off/' etc/slackpkg/slackpkg.conf
 
 mount --bind /etc/resolv.conf etc/resolv.conf
+mount -t devtmpfs none ./dev
 chroot . sh -c 'yes y | /usr/sbin/slackpkg -batch=on -default_answer=y update'
+chroot . sh -c '/usr/sbin/slackpkg -batch=on -default_answer=y install ca-certificates'
+mv etc/slackpkg/mirrors.new etc/slackpkg/mirrors ## now switch to potentially faster mirror
 chroot . sh -c '/usr/sbin/slackpkg -batch=on -default_answer=y upgrade-all'
+umount ./dev
 
 # now some cleanup of the minimal image
 set +x
