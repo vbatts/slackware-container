@@ -18,6 +18,8 @@ RELEASENAME	:= slackware$(ARCH)
 RELEASE		:= $(RELEASENAME)-$(VERSION)
 CACHEFS		:= /tmp/$(NAME)/$(RELEASE)
 ROOTFS		:= /tmp/rootfs-$(RELEASE)
+#CRT		?= podman
+CRT		?= docker
 
 image: $(RELEASENAME)-$(LATEST).tar
 
@@ -36,10 +38,10 @@ all: mkimage-slackware.sh
 	for version in $(VERSIONS) ; do \
 		$(MAKE) $(RELEASENAME)-$${version}.tar && \
 		$(MAKE) VERSION=$${version} clean && \
-		cat $(RELEASENAME)-$${version}.tar | docker import -c 'CMD /bin/sh' - $(USER)/$(NAME):$${version} && \
-		docker run -i --rm $(USER)/$(NAME):$${version} /usr/bin/echo "$(USER)/$(NAME):$${version} :: Success." ; \
+		$(CRT) import -c 'CMD=/bin/sh' $(RELEASENAME)-$${version}.tar $(USER)/$(NAME):$${version} && \
+		$(CRT) run -i --rm $(USER)/$(NAME):$${version} /usr/bin/echo "$(USER)/$(NAME):$${version} :: Success." ; \
 	done && \
-	docker tag $(USER)/$(NAME):$(LATEST) $(USER)/$(NAME):latest
+	$(CRT) tag $(USER)/$(NAME):$(LATEST) $(USER)/$(NAME):latest
 
 .PHONY: umount
 umount:

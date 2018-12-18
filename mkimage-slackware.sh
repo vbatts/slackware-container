@@ -32,6 +32,8 @@ base_pkgs="a/aaa_base \
 	a/bash \
 	a/etc \
 	a/gzip \
+	l/pcre2 \
+	l/libpsl \
 	n/wget \
 	n/gnupg \
 	a/elvis \
