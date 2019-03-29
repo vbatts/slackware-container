@@ -1,7 +1,7 @@
-slackware-docker
+slackware-container
 ===============
 
-build scripts for a slackware docker image
+build scripts for a slackware container image
 
 Overview
 ========
@@ -16,12 +16,15 @@ build
 Currently, using the installer bootstrap, the mkimage-slackware can create an
 ultra-minimal slackware filesystem. (does not even include pkgtools)
 
-	$> sudo docker -d &
-	$> make image
+If you have [podman](https://github.com/containers/libpod/tree/master/cmd/podman) installed (the is an [SBo build](https://slackbuilds.org/repository/14.2/system/podman/)):
+
+	$> CRT="sudo podman" make image
 
 Then you will be able to run:
 
-	$> sudo docker run -i -t $USER/slackware-base /bin/sh
+	$> sudo podman run -i -t $USER/slackware-base /bin/sh
+
+_(this also can be built and run with docker as well. If you build with one, you'll have to push your container build to a container registry before you can pull and run with the other)_
 
 (This will be the environment to build out the Dockerfile from)
 (( see http://docs.docker.com/reference/builder/ for more info on that ))
@@ -38,6 +41,11 @@ This is this build process used to be the base of 'vbatts/slackware' on the
 http://index.docker.io/
 
 Just running:
+
+
+	$> sudo podman run -i -t vbatts/slackware /bin/sh
+ 
+ or
 
 	$> sudo docker run -i -t vbatts/slackware /bin/sh
 
