@@ -38,7 +38,7 @@ all: mkimage-slackware.sh
 	for version in $(VERSIONS) ; do \
 		$(MAKE) $(RELEASENAME)-$${version}.tar && \
 		$(MAKE) VERSION=$${version} clean && \
-		$(CRT) import -c 'CMD=/bin/sh' $(RELEASENAME)-$${version}.tar $(USER)/$(NAME):$${version} && \
+		$(CRT) import -c 'CMD /bin/sh' $(RELEASENAME)-$${version}.tar $(USER)/$(NAME):$${version} && \
 		$(CRT) run -i --rm $(USER)/$(NAME):$${version} /usr/bin/echo "$(USER)/$(NAME):$${version} :: Success." ; \
 	done && \
 	$(CRT) tag $(USER)/$(NAME):$(LATEST) $(USER)/$(NAME):latest
