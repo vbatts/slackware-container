@@ -100,10 +100,7 @@ for dir in cdrom dev sys proc ; do
 	fi
 done
 
-mount --bind $CACHEFS ${ROOTFS}/cdrom
-mount -t devtmpfs none ${ROOTFS}/dev
-mount --bind -o ro /sys ${ROOTFS}/sys
-mount --bind /proc ${ROOTFS}/proc
+mount -o bind,ro $CACHEFS ${ROOTFS}/cdrom
 
 mkdir -p mnt/etc
 cp etc/ld.so.conf mnt/etc
@@ -122,10 +119,10 @@ do
 	l_pkg=$(cacheit $relbase/$path)
 	if [ -e ./sbin/installpkg ] ; then
 		PATH=/bin:/sbin:/usr/bin:/usr/sbin \
-		chroot . /sbin/installpkg --root /mnt --terse ${l_pkg}
+		bash ${CWD}/chroot.sh $(pwd) /sbin/installpkg --root /mnt --terse ${l_pkg}
 	else
 		PATH=/bin:/sbin:/usr/bin:/usr/sbin \
-		chroot . /usr/lib/setup/installpkg --root /mnt --terse ${l_pkg}
+		bash ${CWD}/chroot.sh $(pwd) /usr/lib/setup/installpkg --root /mnt --terse ${l_pkg}
 	fi
 done
 
@@ -140,9 +137,8 @@ sed -i 's/DIALOG=on/DIALOG=off/' etc/slackpkg/slackpkg.conf
 sed -i 's/POSTINST=on/POSTINST=off/' etc/slackpkg/slackpkg.conf
 sed -i 's/SPINNING=on/SPINNING=off/' etc/slackpkg/slackpkg.conf
 
-mount --bind /etc/resolv.conf etc/resolv.conf
-chroot . sh -c 'yes y | /usr/sbin/slackpkg -batch=on -default_answer=y update'
-chroot . sh -c '/usr/sbin/slackpkg -batch=on -default_answer=y upgrade-all'
+bash ${CWD}/chroot.sh $(pwd) sh -c 'yes y | /usr/sbin/slackpkg -batch=on -default_answer=y update'
+bash ${CWD}/chroot.sh $(pwd) sh -c '/usr/sbin/slackpkg -batch=on -default_answer=y upgrade-all'
 
 # now some cleanup of the minimal image
 set +x
@@ -150,14 +146,15 @@ rm -rf var/lib/slackpkg/*
 rm -rf usr/share/locale/*
 rm -rf usr/man/*
 find usr/share/terminfo/ -type f ! -name 'linux' -a ! -name 'xterm' -a ! -name 'screen.linux' -exec rm -f "{}" \;
-umount $ROOTFS/dev
+#umount $ROOTFS/dev
 rm -f dev/* # containers should expect the kernel API (`mount -t devtmpfs none /dev`)
-umount etc/resolv.conf
+#umount etc/resolv.conf
 
 tar --numeric-owner -cf- . > ${CWD}/${RELEASE}.tar
 ls -sh ${CWD}/${RELEASE}.tar
 
-for dir in cdrom dev sys proc ; do
+#for dir in cdrom dev sys proc ; do
+for dir in cdrom ; do
 	if mount | grep -q $ROOTFS/$dir  ; then
 		umount $ROOTFS/$dir
 	fi
