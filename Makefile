@@ -16,10 +16,19 @@ ARCH := 64
 endif
 RELEASENAME	:= slackware$(ARCH)
 RELEASE		:= $(RELEASENAME)-$(VERSION)
-CACHEFS		:= /tmp/$(NAME)/$(RELEASE)
-ROOTFS		:= /tmp/rootfs-$(RELEASE)
+TMPDIR		:= /tmp/slackware-container/
+CACHEFS		:= $(TMPDIR)/$(NAME)/$(RELEASE)
+ROOTFS		:= $(TMPDIR)/rootfs-$(RELEASE)
 #CRT		?= podman
 CRT		?= docker
+
+export TMPDIR
+
+ifeq ($(CRT), podman)
+CRTCMD		:= CMD=/bin/sh
+else
+CRTCMD		:= CMD /bin/sh
+endif
 
 image: $(RELEASENAME)-$(LATEST).tar
 
@@ -34,11 +43,11 @@ $(RELEASENAME)-%.tar: mkimage-slackware.sh
 		BUILD_NAME="$(NAME)" \
 		bash $<
 
-all: mkimage-slackware.sh
+all: mkimage-slackware.sh $(foreach v,$(VERSIONS),$(RELEASENAME)-$(v).tar)
+
+all-container: all
 	for version in $(VERSIONS) ; do \
-		$(MAKE) $(RELEASENAME)-$${version}.tar && \
-		$(MAKE) VERSION=$${version} clean && \
-		$(CRT) import -c 'CMD=/bin/sh' $(RELEASENAME)-$${version}.tar $(USER)/$(NAME):$${version} && \
+		$(CRT) import -c '$(CRTCMD)' $(RELEASENAME)-$${version}.tar $(USER)/$(NAME):$${version} && \
 		$(CRT) run -i --rm $(USER)/$(NAME):$${version} /usr/bin/echo "$(USER)/$(NAME):$${version} :: Success." ; \
 	done && \
 	$(CRT) tag $(USER)/$(NAME):$(LATEST) $(USER)/$(NAME):latest
@@ -53,9 +62,5 @@ umount:
 
 .PHONY: clean
 clean: umount
-	sudo rm -rf $(ROOTFS) $(CACHEFS)/paths
-
-.PHONY: dist-clean
-dist-clean: clean
-	sudo rm -rf $(CACHEFS)
+	sudo rm -rf $(TMPDIR)
 

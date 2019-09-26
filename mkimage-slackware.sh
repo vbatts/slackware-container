@@ -2,6 +2,9 @@
 # Generate a very minimal filesystem from slackware
 
 set -e
+if [ -n "$DEBUG" ] ; then
+	set -x
+fi
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
