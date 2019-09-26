@@ -69,7 +69,7 @@ function cacheit() {
 	file=$1
 	if [ ! -f "${CACHEFS}/${file}"  ] ; then
 		mkdir -p $(dirname ${CACHEFS}/${file})
-		echo "Fetching $file" 1>&2
+		echo "Fetching ${MIRROR}/${RELEASE}/${file}" >&2
 		curl -s -o "${CACHEFS}/${file}" "${MIRROR}/${RELEASE}/${file}"
 	fi
 	echo "/cdrom/${file}"
@@ -110,7 +110,7 @@ cp etc/ld.so.conf mnt/etc
 
 relbase=$(echo ${RELEASE} | cut -d- -f1)
 if [ ! -f ${CACHEFS}/paths ] ; then
-	ruby ${CWD}/get_paths.rb ${RELEASE} > ${CACHEFS}/paths
+	bash ${CWD}/get_paths.sh -r ${RELEASE} > ${CACHEFS}/paths
 fi
 for pkg in ${base_pkgs}
 do
