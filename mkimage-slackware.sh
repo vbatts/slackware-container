@@ -11,13 +11,16 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-BUILD_NAME=${BUILD_NAME:-"slackware"}
-VERSION=${VERSION:="current"}
-RELEASENAME=${RELEASENAME:-"slackware${ARCH}"}
+export LC_ALL="en_US.UTF-8"
+export TMPDIR="${TMPDIR:-/tmp/slackware-container}"
+
+BUILD_NAME="${BUILD_NAME:-slackware}"
+VERSION="${VERSION:-current}"
+RELEASENAME="${RELEASENAME:-slackware${ARCH}}"
 RELEASE=${RELEASE:-"${RELEASENAME}-${VERSION}"}
 MIRROR=${MIRROR:-"http://slackware.osuosl.org"}
-CACHEFS=${CACHEFS:-"/tmp/${BUILD_NAME}/${RELEASE}"}
-ROOTFS=${ROOTFS:-"/tmp/rootfs-${RELEASE}"}
+CACHEFS=${CACHEFS:-"${TMPDIR}/${BUILD_NAME}/${RELEASE}"}
+ROOTFS=${ROOTFS:-"${TMPDIR}/rootfs-${RELEASE}"}
 CWD=$(pwd)
 
 base_pkgs="a/aaa_base \
@@ -68,64 +71,64 @@ base_pkgs="a/aaa_base \
 function cacheit() {
 	file=$1
 	if [ ! -f "${CACHEFS}/${file}"  ] ; then
-		mkdir -p $(dirname ${CACHEFS}/${file})
+		mkdir -p "$(dirname "${CACHEFS}/${file}")"
 		echo "Fetching ${MIRROR}/${RELEASE}/${file}" >&2
 		curl -s -o "${CACHEFS}/${file}" "${MIRROR}/${RELEASE}/${file}"
 	fi
 	echo "/cdrom/${file}"
 }
 
-mkdir -p $ROOTFS $CACHEFS
+mkdir -p "$ROOTFS" "$CACHEFS"
 
 cacheit "isolinux/initrd.img"
 
-cd $ROOTFS
+cd "$ROOTFS"
 # extract the initrd to the current rootfs
 ## ./slackware64-14.2/isolinux/initrd.img:    gzip compressed data, last modified: Fri Jun 24 21:14:48 2016, max compression, from Unix, original size 68600832
 ## ./slackware64-current/isolinux/initrd.img: XZ compressed data
-if $(file ${CACHEFS}/isolinux/initrd.img | grep -wq XZ) ; then
+if $(file "${CACHEFS}/isolinux/initrd.img" | grep -wq XZ) ; then
 	xzcat "${CACHEFS}/isolinux/initrd.img" | cpio -idvm --null --no-absolute-filenames
 else
 	zcat "${CACHEFS}/isolinux/initrd.img" | cpio -idvm --null --no-absolute-filenames
 fi
 
-if stat -c %F $ROOTFS/cdrom | grep -q "symbolic link" ; then
-	rm $ROOTFS/cdrom
+if stat -c %F "$ROOTFS/cdrom" | grep -q "symbolic link" ; then
+	rm "$ROOTFS/cdrom"
 fi
 mkdir -p $ROOTFS/{mnt,cdrom,dev,proc,sys}
 
 for dir in cdrom dev sys proc ; do
-	if mount | grep -q $ROOTFS/$dir  ; then
-		umount $ROOTFS/$dir
+	if mount | grep -q "$ROOTFS/$dir"  ; then
+		umount "$ROOTFS/$dir"
 	fi
 done
 
-mount --bind $CACHEFS ${ROOTFS}/cdrom
-mount -t devtmpfs none ${ROOTFS}/dev
-mount --bind -o ro /sys ${ROOTFS}/sys
-mount --bind /proc ${ROOTFS}/proc
+mount --bind "$CACHEFS" "${ROOTFS}/cdrom"
+mount -t devtmpfs none "${ROOTFS}/dev"
+mount --bind -o ro /sys "${ROOTFS}/sys"
+mount --bind /proc "${ROOTFS}/proc"
 
 mkdir -p mnt/etc
 cp etc/ld.so.conf mnt/etc
 
-relbase=$(echo ${RELEASE} | cut -d- -f1)
-if [ ! -f ${CACHEFS}/paths ] ; then
-	bash ${CWD}/get_paths.sh -r ${RELEASE} > ${CACHEFS}/paths
+relbase="$(echo "${RELEASE}" | cut -d- -f1)"
+if [ ! -f "${CACHEFS}/paths" ] ; then
+	bash "${CWD}/get_paths.sh" -r "${RELEASE}" > "${CACHEFS}/paths"
 fi
 for pkg in ${base_pkgs}
 do
-	path=$(grep ^${pkg} ${CACHEFS}/paths | cut -d : -f 1)
+	path=$(grep "^${pkg}" "${CACHEFS}/paths" | cut -d : -f 1)
 	if [ ${#path} -eq 0 ] ; then
 		echo "$pkg not found"
 		continue
 	fi
-	l_pkg=$(cacheit $relbase/$path)
+	l_pkg="$(cacheit "$relbase/$path")"
 	if [ -e ./sbin/installpkg ] ; then
 		PATH=/bin:/sbin:/usr/bin:/usr/sbin \
-		chroot . /sbin/installpkg --root /mnt --terse ${l_pkg}
+		chroot . /sbin/installpkg --root /mnt --terse "${l_pkg}"
 	else
 		PATH=/bin:/sbin:/usr/bin:/usr/sbin \
-		chroot . /usr/lib/setup/installpkg --root /mnt --terse ${l_pkg}
+		chroot . /usr/lib/setup/installpkg --root /mnt --terse "${l_pkg}"
 	fi
 done
 
@@ -150,17 +153,16 @@ rm -rf var/lib/slackpkg/*
 rm -rf usr/share/locale/*
 rm -rf usr/man/*
 find usr/share/terminfo/ -type f ! -name 'linux' -a ! -name 'xterm' -a ! -name 'screen.linux' -exec rm -f "{}" \;
-umount $ROOTFS/dev
+umount "$ROOTFS/dev"
 rm -f dev/* # containers should expect the kernel API (`mount -t devtmpfs none /dev`)
 umount etc/resolv.conf
 
-tar --numeric-owner -cf- . > ${CWD}/${RELEASE}.tar
-ls -sh ${CWD}/${RELEASE}.tar
+tar --numeric-owner -cf- . > "${CWD}/${RELEASE}.tar"
+ls -sh "${CWD}/${RELEASE}.tar"
 
 for dir in cdrom dev sys proc ; do
-	if mount | grep -q $ROOTFS/$dir  ; then
-		umount $ROOTFS/$dir
+	if mount | grep -q "$ROOTFS/$dir"  ; then
+		umount "$ROOTFS/$dir"
 	fi
 done
-
 
