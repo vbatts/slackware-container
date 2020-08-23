@@ -110,8 +110,8 @@ cp etc/ld.so.conf mnt/etc
 
 # older versions than 13.37 did not have certain flags
 install_args=""
-if [ -f ./sbin/installpkg ] &&  grep -qw terse ./sbin/installpkg ; then
-	install_args="--terse"
+if [ -f ./sbin/upgradepkg ] &&  grep -qw terse ./sbin/upgradepkg ; then
+	install_args="--install-new --reinstall --terse"
 elif [ -f ./usr/lib/setup/installpkg ] &&  grep -qw terse ./usr/lib/setup/installpkg ; then
 	install_args="--terse"
 fi
@@ -128,9 +128,9 @@ do
 		continue
 	fi
 	l_pkg=$(cacheit $relbase/$path)
-	if [ -e ./sbin/installpkg ] ; then
+	if [ -e ./sbin/upgradepkg ] ; then
 		PATH=/bin:/sbin:/usr/bin:/usr/sbin \
-		chroot . /sbin/installpkg --root /mnt ${install_args} ${l_pkg}
+		chroot . /sbin/upgradepkg --root /mnt ${install_args} ${l_pkg}
 	else
 		PATH=/bin:/sbin:/usr/bin:/usr/sbin \
 		chroot . /usr/lib/setup/installpkg --root /mnt ${install_args} ${l_pkg}

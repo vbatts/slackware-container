@@ -14,7 +14,7 @@ ARCH := arm64
 else
 ARCH := 64
 endif
-RELEASENAME	:= slackware$(ARCH)
+RELEASENAME	?= slackware$(ARCH)
 RELEASE		:= $(RELEASENAME)-$(VERSION)
 CACHEFS		:= /tmp/$(NAME)/$(RELEASE)
 ROOTFS		:= /tmp/rootfs-$(RELEASE)
