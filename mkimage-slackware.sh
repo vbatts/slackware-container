@@ -108,6 +108,14 @@ mount --bind /proc ${ROOTFS}/proc
 mkdir -p mnt/etc
 cp etc/ld.so.conf mnt/etc
 
+# older versions than 13.37 did not have certain flags
+install_args=""
+if [ -f ./sbin/installpkg ] &&  grep -qw terse ./sbin/installpkg ; then
+	install_args="--terse"
+elif [ -f ./usr/lib/setup/installpkg ] &&  grep -qw terse ./usr/lib/setup/installpkg ; then
+	install_args="--terse"
+fi
+
 relbase=$(echo ${RELEASE} | cut -d- -f1)
 if [ ! -f ${CACHEFS}/paths ] ; then
 	bash ${CWD}/get_paths.sh -r ${RELEASE} > ${CACHEFS}/paths
@@ -122,10 +130,10 @@ do
 	l_pkg=$(cacheit $relbase/$path)
 	if [ -e ./sbin/installpkg ] ; then
 		PATH=/bin:/sbin:/usr/bin:/usr/sbin \
-		chroot . /sbin/installpkg --root /mnt --terse ${l_pkg}
+		chroot . /sbin/installpkg --root /mnt ${install_args} ${l_pkg}
 	else
 		PATH=/bin:/sbin:/usr/bin:/usr/sbin \
-		chroot . /usr/lib/setup/installpkg --root /mnt --terse ${l_pkg}
+		chroot . /usr/lib/setup/installpkg --root /mnt ${install_args} ${l_pkg}
 	fi
 done
 

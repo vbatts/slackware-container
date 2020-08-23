@@ -1,6 +1,6 @@
 LATEST		:= 14.2
 VERSION		:= $(LATEST)
-VERSIONS	:= 13.37 14.0 14.1 14.2 current
+VERSIONS	:= 13.0 13.1 13.37 14.0 14.1 14.2 current
 NAME		:= slackware
 MIRROR		:= http://slackware.osuosl.org
 ifeq ($(shell uname -m),x86_64)
