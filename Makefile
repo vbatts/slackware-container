@@ -61,7 +61,13 @@ umount:
 clean: umount
 	sudo rm -rf $(ROOTFS) $(CACHEFS)/paths
 
+.PHONY: clean-all
+clean-all:
+	for version in $(VERSIONS) ; do \
+		$(MAKE) VERSION=$${version} clean ; \
+	done
+
 .PHONY: dist-clean
-dist-clean: clean
+dist-clean: clean-all
 	sudo rm -rf $(CACHEFS)
 
