@@ -53,7 +53,6 @@ base_pkgs="a/aaa_base \
 	a/dialog \
 	a/file \
 	a/gawk \
-	a/time \
 	a/gettext \
 	a/libcgroup \
 	a/patch \
