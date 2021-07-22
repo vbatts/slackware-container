@@ -1,28 +1,29 @@
-slackware-container
-===============
+# slackware-container
 
 build scripts for a slackware container image
 
-Overview
-========
+## Overview
 
 The Dockerfile is incomplete so far, since it expects a base image to be used.
 It would be possible and understandable to use the 'busybox' image, and build
 from there, but also to have a mkimage-slackware.sh to build the base image.
 
-build
-=====
+## build
 
 Currently, using the installer bootstrap, the mkimage-slackware can create an
 ultra-minimal slackware filesystem. (does not even include pkgtools)
 
 If you have [podman](https://github.com/containers/libpod/tree/master/cmd/podman) installed (the is an [SBo build](https://slackbuilds.org/repository/14.2/system/podman/)):
 
-	$> CRT="sudo podman" make image
+```shell
+CRT="sudo podman" make image
+```
 
 Then you will be able to run:
 
-	$> sudo podman run -i -t $USER/slackware-base /bin/sh
+```shell
+sudo podman run -i -t $USER/slackware-base /bin/sh
+```
 
 _(this also can be built and run with docker as well. If you build with one, you'll have to push your container build to a container registry before you can pull and run with the other)_
 
@@ -32,7 +33,9 @@ _(this also can be built and run with docker as well. If you build with one, you
 
 To build alternate versions of slackware, pass gnu-make the RELEASE variable, like:
 
-	$> make image RELEASE=slackware64-13.37 IMG_NAME=$HOME/my_slackware:13.37
+```shell
+make image RELEASE=slackware64-13.37 IMG_NAME=$HOME/my_slackware:13.37
+```
 
 To build and test say slackware64-current in a docker container:
 
@@ -40,29 +43,29 @@ To build and test say slackware64-current in a docker container:
 make run-current
 ```
 
-Index
-=====
+## Index
 
 This is this build process used to be the base of 'vbatts/slackware' on the
 http://index.docker.io/
 
 Just running:
 
-
-	$> sudo podman run -i -t vbatts/slackware /bin/sh
+```shell
+sudo podman run -i -t vbatts/slackware /bin/sh
+```
  
  or
 
-	$> sudo docker run -i -t vbatts/slackware /bin/sh
+```shell
+sudo docker run -i -t vbatts/slackware /bin/sh
+```
 
 Will pull down this image for testing.
 
-Contributing
-============
+## Contributing
 please hack on this and send feedback!
 
-License
-=======
+## License
 
 Copyright (c) 2013, Vincent Batts <vbatts@hashbangbash.com>
 All rights reserved.
