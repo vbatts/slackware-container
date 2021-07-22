@@ -44,10 +44,19 @@ all: mkimage-slackware.sh
 	for version in $(VERSIONS) ; do \
 		$(MAKE) $(RELEASENAME)-$${version}.tar && \
 		$(MAKE) VERSION=$${version} clean && \
-		$(CRT) import -c '$(CRTCMD)' $(RELEASENAME)-$${version}.tar $(USER)/$(NAME):$${version} && \
-		$(CRT) run -i --rm $(USER)/$(NAME):$${version} /usr/bin/echo "$(USER)/$(NAME):$${version} :: Success." ; \
+		$(MAKE) import-$${version} && \
+		$(MAKE) run-test-$${version} ; \
 	done && \
 	$(CRT) tag $(USER)/$(NAME):$(LATEST) $(USER)/$(NAME):latest
+
+import-%: $(RELEASENAME)-%.tar
+	$(CRT) import -c '$(CRTCMD)' $(RELEASENAME)-$*.tar $(USER)/$(NAME):$*
+
+run-%: import-%
+	$(CRT) run -it --rm $(USER)/$(NAME):$*
+
+run-test-%:
+	$(CRT) run -i --rm $(USER)/$(NAME):$* /usr/bin/echo "$(USER)/$(NAME):$* :: Success."
 
 .PHONY: umount
 umount:
