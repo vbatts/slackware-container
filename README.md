@@ -34,6 +34,12 @@ To build alternate versions of slackware, pass gnu-make the RELEASE variable, li
 
 	$> make image RELEASE=slackware64-13.37 IMG_NAME=$HOME/my_slackware:13.37
 
+To build and test say slackware64-current in a docker container:
+
+```shell
+make run-current
+```
+
 Index
 =====
 
