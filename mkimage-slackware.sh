@@ -22,9 +22,15 @@ CWD=$(pwd)
 
 base_pkgs="a/aaa_base \
 	a/aaa_elflibs \
+	a/aaa_libraries \
 	a/coreutils \
 	a/glibc-solibs \
+	a/aaa_glibc-solibs \
 	a/aaa_terminfo \
+	a/pam \
+	a/cracklib \
+	a/libpwquality \
+	a/e2fsprogs \
 	a/pkgtools \
 	a/shadow \
 	a/tar \
@@ -116,6 +122,14 @@ elif [ -f ./usr/lib/setup/installpkg ] &&  grep -qw terse ./usr/lib/setup/instal
 	install_args="--terse"
 fi
 
+# an update in upgradepkg during the 14.2 -> 15.0 cycle changed/broke this
+root_env=""
+root_flag="--root /mnt"
+if [ "$VERSION" = "current" ] ; then
+	root_env='ROOT=/mnt'
+	root_flag=''
+fi
+
 relbase=$(echo ${RELEASE} | cut -d- -f1)
 if [ ! -f ${CACHEFS}/paths ] ; then
 	bash ${CWD}/get_paths.sh -r ${RELEASE} > ${CACHEFS}/paths
@@ -129,11 +143,19 @@ do
 	fi
 	l_pkg=$(cacheit $relbase/$path)
 	if [ -e ./sbin/upgradepkg ] ; then
+		echo PATH=/bin:/sbin:/usr/bin:/usr/sbin \
+		ROOT=/mnt \
+		chroot . /sbin/upgradepkg ${root_flag} ${install_args} ${l_pkg}
 		PATH=/bin:/sbin:/usr/bin:/usr/sbin \
-		chroot . /sbin/upgradepkg --root /mnt ${install_args} ${l_pkg}
+		ROOT=/mnt \
+		chroot . /sbin/upgradepkg ${root_flag} ${install_args} ${l_pkg}
 	else
+		echo PATH=/bin:/sbin:/usr/bin:/usr/sbin \
+		ROOT=/mnt \
+		chroot . /usr/lib/setup/installpkg ${root_flag} ${install_args} ${l_pkg}
 		PATH=/bin:/sbin:/usr/bin:/usr/sbin \
-		chroot . /usr/lib/setup/installpkg --root /mnt ${install_args} ${l_pkg}
+		ROOT=/mnt \
+		chroot . /usr/lib/setup/installpkg ${root_flag} ${install_args} ${l_pkg}
 	fi
 done
 
@@ -148,9 +170,22 @@ sed -i 's/DIALOG=on/DIALOG=off/' etc/slackpkg/slackpkg.conf
 sed -i 's/POSTINST=on/POSTINST=off/' etc/slackpkg/slackpkg.conf
 sed -i 's/SPINNING=on/SPINNING=off/' etc/slackpkg/slackpkg.conf
 
+if [ ! -f etc/rc.d/rc.local ] ; then
+	mkdir -p etc/rc.d
+	cat >> etc/rc.d/rc.local <<EOF
+#!/bin/sh
+#
+# /etc/rc.d/rc.local:  Local system initialization script.
+
+EOF
+	chmod +x etc/rc.d/rc.local
+fi
+
 mount --bind /etc/resolv.conf etc/resolv.conf
-chroot . sh -c 'yes y | /usr/sbin/slackpkg -batch=on -default_answer=y update'
-chroot . sh -c '/usr/sbin/slackpkg -batch=on -default_answer=y upgrade-all'
+PATH=/bin:/sbin:/usr/bin:/usr/sbin \
+chroot . /bin/bash -c 'yes y | /usr/sbin/slackpkg -batch=on -default_answer=y update'
+PATH=/bin:/sbin:/usr/bin:/usr/sbin \
+chroot . /bin/bash -c '/usr/sbin/slackpkg -batch=on -default_answer=y upgrade-all'
 
 # now some cleanup of the minimal image
 set +x

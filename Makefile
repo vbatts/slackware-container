@@ -1,23 +1,23 @@
-LATEST		:= 14.2
-VERSION		:= $(LATEST)
-VERSIONS	:= 13.0 13.1 13.37 14.0 14.1 14.2 current
-NAME		:= slackware
-MIRROR		:= http://slackware.osuosl.org
+LATEST		= 14.2
+VERSION		= $(LATEST)
+VERSIONS	= 13.0 13.1 13.37 14.0 14.1 14.2 current
+NAME		= slackware
+MIRROR		= http://slackware.osuosl.org
 ifeq ($(shell uname -m),x86_64)
-ARCH := 64
+ARCH = 64
 else ifeq ($(patsubst i%86,x86,$(shell uname -m)),x86)
-ARCH :=
+ARCH =
 else ifeq ($(shell uname -m),armv6l)
-ARCH := arm
+ARCH = arm
 else ifeq ($(shell uname -m),aarch64)
-ARCH := arm64
+ARCH = arm64
 else
-ARCH := 64
+ARCH = 64
 endif
 RELEASENAME	?= slackware$(ARCH)
-RELEASE		:= $(RELEASENAME)-$(VERSION)
-CACHEFS		:= /tmp/$(NAME)/$(RELEASE)
-ROOTFS		:= /tmp/rootfs-$(RELEASE)
+RELEASE		= $(RELEASENAME)-$(VERSION)
+CACHEFS		= /tmp/$(NAME)/$(RELEASE)
+ROOTFS		= /tmp/rootfs-$(RELEASE)
 #CRT		?= podman
 CRT		?= docker
 
@@ -27,7 +27,7 @@ else
 CRTCMD         := CMD /bin/sh
 endif
 
-image: $(RELEASENAME)-$(LATEST).tar
+image: $(RELEASENAME)-$(VERSION).tar
 
 arch:
 	@echo $(ARCH)
@@ -51,11 +51,12 @@ all: mkimage-slackware.sh
 
 .PHONY: umount
 umount:
+	@sudo umount $(ROOTFS)/etc/resolv.conf || :
+	@sudo umount $(ROOTFS)/mnt/etc/resolv.conf || :
 	@sudo umount $(ROOTFS)/cdrom || :
 	@sudo umount $(ROOTFS)/dev || :
 	@sudo umount $(ROOTFS)/sys || :
 	@sudo umount $(ROOTFS)/proc || :
-	@sudo umount $(ROOTFS)/etc/resolv.conf || :
 
 .PHONY: clean
 clean: umount
