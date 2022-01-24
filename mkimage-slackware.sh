@@ -22,15 +22,9 @@ CWD=$(pwd)
 
 base_pkgs="a/aaa_base \
 	a/aaa_elflibs \
-	a/aaa_libraries \
 	a/coreutils \
 	a/glibc-solibs \
-	a/aaa_glibc-solibs \
 	a/aaa_terminfo \
-	a/pam \
-	a/cracklib \
-	a/libpwquality \
-	a/e2fsprogs \
 	a/nvi \
 	a/pkgtools \
 	a/shadow \
@@ -72,6 +66,8 @@ base_pkgs="a/aaa_base \
 	n/openssl"
 
 slackware_current_must_haves="n/libmnl \
+	a/aaa_libraries \
+	a/aaa_glibc-solibs \
 	a/pam-1 \
 	l/libcap-ng \
 	n/iptables \
