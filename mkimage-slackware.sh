@@ -21,11 +21,9 @@ ROOTFS=${ROOTFS:-"/tmp/rootfs-${RELEASE}"}
 CWD=$(pwd)
 
 base_pkgs="a/aaa_base \
-	a/aaa_elflibs \
 	a/aaa_libraries \
 	a/coreutils \
 	a/glibc-solibs \
-	a/aaa_glibc-solibs \
 	a/aaa_terminfo \
 	a/pam \
 	a/cracklib \
@@ -71,6 +69,24 @@ base_pkgs="a/aaa_base \
 	a/findutils \
 	n/iproute2 \
 	n/openssl"
+
+base_pkgs_legacy="a/aaa_elflibs \
+	a/glibc-solibs"
+base_pkgs_15_0="a/aaa_libraries \
+	a/aaa_glibc-solibs"
+base_pkgs_current="a/aaa_libraries \
+	a/aaa_glibc-solibs"
+
+if [[ "$VERSION" == "current" ]]; then
+  base_pkgs="$base_pkgs_current \
+	$base_pkgs"
+elif [[ "$VERSION" == "15.0" ]]; then
+  base_pkgs="$base_pkgs_15_0 \
+	$base_pkgs"
+else
+  base_pkgs="$base_pkgs_legacy \
+	$base_pkgs"
+fi
 
 function cacheit() {
 	file=$1
@@ -126,7 +142,7 @@ fi
 # an update in upgradepkg during the 14.2 -> 15.0 cycle changed/broke this
 root_env=""
 root_flag="--root /mnt"
-if [ "$VERSION" = "current" ] ; then
+if [ "$VERSION" = "15.0" ] || [ "$VERSION" = "current" ] ; then
 	root_env='ROOT=/mnt'
 	root_flag=''
 fi
@@ -186,7 +202,8 @@ mount --bind /etc/resolv.conf etc/resolv.conf
 PATH=/bin:/sbin:/usr/bin:/usr/sbin \
 chroot . /bin/bash -c 'yes y | /usr/sbin/slackpkg -batch=on -default_answer=y update'
 PATH=/bin:/sbin:/usr/bin:/usr/sbin \
-chroot . /bin/bash -c '/usr/sbin/slackpkg -batch=on -default_answer=y upgrade-all'
+# handle new exit codes from slackpkg in 15.0 and newer
+chroot . /bin/bash -c 'EXIT_CODE=0 && { /usr/sbin/slackpkg -batch=on -default_answer=y upgrade-all || EXIT_CODE=$? ; } && if [ $EXIT_CODE -ne 0 ] && [ $EXIT_CODE -ne 20 ] ; then exit $EXIT_CODE ; fi'
 
 # now some cleanup of the minimal image
 set +x
