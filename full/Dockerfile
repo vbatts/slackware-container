@@ -8,7 +8,7 @@ RUN echo "${REPO}" > /etc/slackpkg/mirrors
 RUN yes y | slackpkg update && \
     slackpkg install-new && \
     slackpkg upgrade-all -default_answer=yes -batch=yes && \
-    slackpkg install -default_answer=yes -batch=yes a/* ap/* n/* d/* k/* l/* kde/* y/*
+    slackpkg install -default_answer=yes -batch=yes a ap n d k l kde x t xap xfce y
 
 RUN groupadd -g "${DEV_GID}" "${DEV_USER}" ; \
     useradd -m -u "${DEV_UID}" -g "${DEV_GID}" -G wheel "${DEV_USER}" && \
