@@ -187,10 +187,25 @@ EOF
 fi
 
 mount --bind /etc/resolv.conf etc/resolv.conf
-PATH=/bin:/sbin:/usr/bin:/usr/sbin \
-chroot . /bin/bash -c 'yes y | /usr/sbin/slackpkg -batch=on -default_answer=y update'
-PATH=/bin:/sbin:/usr/bin:/usr/sbin \
-chroot . /bin/bash -c '/usr/sbin/slackpkg -batch=on -default_answer=y upgrade-all || test $? -eq 20'
+
+# for slackware 15.0, slackpkg return codes are now:
+# 0 -> All OK, 1 -> something wrong, 20 -> empty list, 50 -> Slackpkg upgraded, 100 -> no pending updates
+chroot_slackpkg() {
+	PATH=/bin:/sbin:/usr/bin:/usr/sbin \
+	chroot . /bin/bash -c 'yes y | /usr/sbin/slackpkg -batch=on -default_answer=y update'
+	ret=0
+	PATH=/bin:/sbin:/usr/bin:/usr/sbin \
+	chroot . /bin/bash -c '/usr/sbin/slackpkg -batch=on -default_answer=y upgrade-all' || ret=$?
+	if [ $ret -eq 0 ] || [ $ret -eq 20 ] ; then
+		echo "uprade-all is OK"
+		return
+	elif [ $ret -eq 50 ] ; then
+		chroot_slackpkg
+	else
+		return $?
+	fi
+}
+chroot_slackpkg
 
 # now some cleanup of the minimal image
 set +x
