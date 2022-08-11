@@ -190,7 +190,7 @@ mount --bind /etc/resolv.conf etc/resolv.conf
 PATH=/bin:/sbin:/usr/bin:/usr/sbin \
 chroot . /bin/bash -c 'yes y | /usr/sbin/slackpkg -batch=on -default_answer=y update'
 PATH=/bin:/sbin:/usr/bin:/usr/sbin \
-chroot . /bin/bash -c '/usr/sbin/slackpkg -batch=on -default_answer=y upgrade-all'
+chroot . /bin/bash -c '/usr/sbin/slackpkg -batch=on -default_answer=y upgrade-all || test $? -eq 20'
 
 # now some cleanup of the minimal image
 set +x
