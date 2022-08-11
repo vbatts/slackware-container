@@ -49,6 +49,10 @@ base_pkgs="a/aaa_base \
 	a/bin \
 	a/bzip2 \
 	a/grep \
+	a/acl \
+	l/pcre \
+	l/gmp \
+ 	a/attr \
 	a/sed \
 	a/dialog \
 	a/file \
@@ -126,7 +130,7 @@ fi
 # an update in upgradepkg during the 14.2 -> 15.0 cycle changed/broke this
 root_env=""
 root_flag="--root /mnt"
-if [ "$VERSION" = "current" ] ; then
+if [ "$VERSION" = "current" ] || [ "${VERSION}" = "15.0" ]; then
 	root_env='ROOT=/mnt'
 	root_flag=''
 fi
