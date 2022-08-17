@@ -18,6 +18,7 @@ RELEASE=${RELEASE:-"${RELEASENAME}-${VERSION}"}
 MIRROR=${MIRROR:-"http://slackware.osuosl.org"}
 CACHEFS=${CACHEFS:-"/tmp/${BUILD_NAME}/${RELEASE}"}
 ROOTFS=${ROOTFS:-"/tmp/rootfs-${RELEASE}"}
+MINIMAL=${MINIMAL:-yes}
 CWD=$(pwd)
 
 base_pkgs="a/aaa_base \
@@ -200,9 +201,11 @@ if [ ! -e ./root/.gnupg ] ; then
 fi
 
 set -x
-echo "export TERM=linux" >> etc/profile.d/term.sh
-chmod +x etc/profile.d/term.sh
-echo ". /etc/profile" > .bashrc
+if [ "$MINIMAL" = "yes" ] || [ "$MINIMAL" = "1" ] ; then
+	echo "export TERM=linux" >> etc/profile.d/term.sh
+	chmod +x etc/profile.d/term.sh
+	echo ". /etc/profile" > .bashrc
+fi
 echo "${MIRROR}/${RELEASE}/" >> etc/slackpkg/mirrors
 sed -i 's/DIALOG=on/DIALOG=off/' etc/slackpkg/slackpkg.conf
 sed -i 's/POSTINST=on/POSTINST=off/' etc/slackpkg/slackpkg.conf
@@ -225,9 +228,11 @@ fi
 
 # now some cleanup of the minimal image
 set +x
-rm -rf usr/share/locale/*
-rm -rf usr/man/*
-find usr/share/terminfo/ -type f ! -name 'linux' -a ! -name 'xterm' -a ! -name 'screen.linux' -exec rm -f "{}" \;
+if [ "$MINIMAL" = "yes" ] || [ "$MINIMAL" = "1" ] ; then
+	rm -rf usr/share/locale/*
+	rm -rf usr/man/*
+	find usr/share/terminfo/ -type f ! -name 'linux' -a ! -name 'xterm' -a ! -name 'screen.linux' -exec rm -f "{}" \;
+fi
 umount $ROOTFS/dev
 rm -f dev/* # containers should expect the kernel API (`mount -t devtmpfs none /dev`)
 
