@@ -132,7 +132,12 @@ fi
 
 # an update in upgradepkg during the 14.2 -> 15.0 cycle changed/broke this
 root_env=""
-root_flag="--root /mnt"
+root_flag=""
+if [ -f ./sbin/upgradepkg ] && grep -qw -- '"--root"' ./sbin/upgradepkg ; then
+	root_flag="--root /mnt"
+elif [ -f ./usr/lib/setup/installpkg ] && grep -qw -- '"-root"' ./usr/lib/setup/installpkg ; then
+	root_flag="-root /mnt"
+fi
 if [ "$VERSION" = "current" ] || [ "${VERSION}" = "15.0" ]; then
 	root_env='ROOT=/mnt'
 	root_flag=''
@@ -206,15 +211,12 @@ if [ "$MINIMAL" = "yes" ] || [ "$MINIMAL" = "1" ] ; then
 	chmod +x etc/profile.d/term.sh
 	echo ". /etc/profile" > .bashrc
 fi
-echo "${MIRROR}/${RELEASE}/" >> etc/slackpkg/mirrors
-sed -i 's/DIALOG=on/DIALOG=off/' etc/slackpkg/slackpkg.conf
-sed -i 's/POSTINST=on/POSTINST=off/' etc/slackpkg/slackpkg.conf
-sed -i 's/SPINNING=on/SPINNING=off/' etc/slackpkg/slackpkg.conf
-if [ "$VERSION" = "current" ] ; then
-	mkdir -p var/lib/slackpkg
-	touch var/lib/slackpkg/current
+if [ -e etc/slackpkg/mirrors ] ; then
+	echo "${MIRROR}/${RELEASE}/" >> etc/slackpkg/mirrors
+	sed -i 's/DIALOG=on/DIALOG=off/' etc/slackpkg/slackpkg.conf
+	sed -i 's/POSTINST=on/POSTINST=off/' etc/slackpkg/slackpkg.conf
+	sed -i 's/SPINNING=on/SPINNING=off/' etc/slackpkg/slackpkg.conf
 fi
-
 if [ ! -f etc/rc.d/rc.local ] ; then
 	mkdir -p etc/rc.d
 	cat >> etc/rc.d/rc.local <<EOF
