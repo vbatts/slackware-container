@@ -18,9 +18,10 @@ _release_base() {
 _fetch_file_list() {
     local mirror="${1}"
     local release="${2}"
+    local directory="${3}"
     local ret
 
-    curl -sSL "${mirror}/${release}/$(_release_base "${release}")/FILE_LIST"
+    curl -sSL "${mirror}/${release}/${directory}/FILE_LIST"
     ret=$?
     if [ $ret -ne 0 ] ; then
         return $ret
@@ -59,7 +60,7 @@ main() {
     mirror="${MIRROR:-http://slackware.osuosl.org}"
     release="${RELEASE:-slackware64-current}"
 
-    while getopts ":hm:r:t" opts ; do
+    while getopts ":hm:r:tpe" opts ; do
         case "${opts}" in
             m)
                 mirror="${OPTARG}"
@@ -69,6 +70,12 @@ main() {
                 ;;
             t)
                 fetch_tagfiles=1
+                ;;
+            p)
+                fetch_patches=1
+                ;;
+            e)
+                fetch_extra=1
                 ;;
             *)
                 _usage
@@ -80,13 +87,20 @@ main() {
     
     tmp_dir="$(mktemp -d)"
     tmp_file_list="${tmp_dir}/FILE_LIST"
-    _fetch_file_list "${mirror}" "${release}" > "${tmp_file_list}"
+    if [ -n "${fetch_patches}" ] ; then
+        _fetch_file_list "${mirror}" "${release}" "patches" >> "${tmp_file_list}"
+    elif [ -n "${fetch_extra}" ] ; then
+        _fetch_file_list "${mirror}" "${release}" "extra" >> "${tmp_file_list}"
+    else
+        _fetch_file_list "${mirror}" "${release}" "$(_release_base "${release}")" > "${tmp_file_list}"
+    fi
+
     ret=$?
     if [ $ret -ne 0 ] ; then
         echo "ERROR fetching FILE_LIST" >&2
         exit $ret
     fi
-    
+
     if [ -n "${fetch_tagfiles}" ] ; then
         for section in $(_sections_from_file_list "${tmp_file_list}") ; do
             mkdir -p "${tmp_dir}/${section}"
@@ -97,7 +111,7 @@ main() {
             fi
         done
     fi
-    
+
     grep '\.t.z$' "${tmp_file_list}" | awk '{ print $8 }' | sed -e 's|\./\(.*\.t.z\)$|\1|g'
 }
 
