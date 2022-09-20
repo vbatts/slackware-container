@@ -67,6 +67,8 @@ base_pkgs="a/aaa_base \
 	a/utempter \
 	a/which \
 	a/util-linux \
+	a/elogind \
+	l/libseccomp \
 	l/mpfr \
 	l/libunistring \
 	ap/diffutils \
