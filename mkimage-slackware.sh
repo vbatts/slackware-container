@@ -87,6 +87,11 @@ base_pkgs="a/aaa_base \
 	n/iproute2 \
 	n/openssl"
 
+if [ "$VERSION" = "15.0" ] && [ "$ARCH" = "arm" ] ; then
+	base_pkgs="installer_fix \
+	$base_pkgs"
+fi
+
 function cacheit() {
 	file=$1
 	if [ ! -f "${CACHEFS}/${file}"  ] ; then
@@ -182,6 +187,12 @@ if [ ! -f ${CACHEFS}/paths-extra ] ; then
 fi
 for pkg in ${base_pkgs}
 do
+	installer_fix=false
+	if [ "$pkg" = "installer_fix" ] ; then
+		# see slackwarearm-15.0 ChangeLog entry from Thu Sep 15 08:08:08 UTC 2022
+		installer_fix=true
+		pkg=a/aaa_glibc-solibs
+	fi
 	path=$(grep "^packages/$(basename "${pkg}")-" ${CACHEFS}/paths-patches | cut -d : -f 1)
 	if [ ${#path} -eq 0 ] ; then
 		path=$(grep ^${pkg}- ${CACHEFS}/paths | cut -d : -f 1)
@@ -199,7 +210,17 @@ do
 	else
 		l_pkg=$(cacheit patches/$path)
 	fi
-	if [ -e ./sbin/upgradepkg ] ; then
+	if $installer_fix ; then
+		echo PATH=/bin:/sbin:/usr/bin:/usr/sbin \
+		chroot . /bin/tar-1.13 -xvf ${l_pkg} lib/incoming/libc-2.33.so
+		PATH=/bin:/sbin:/usr/bin:/usr/sbin \
+		chroot . /bin/tar -xvf ${l_pkg} lib/incoming/libc-2.33.so
+		mv lib/incoming/libc-2.33.so lib && rm -rf lib/incoming
+		echo PATH=/bin:/sbin:/usr/bin:/usr/sbin \
+		chroot . /bin/test -x /bin/sh
+		PATH=/bin:/sbin:/usr/bin:/usr/sbin \
+		chroot . /bin/test -x /bin/sh # confirm bug is fixed
+	elif [ -e ./sbin/upgradepkg ] ; then
 		echo PATH=/bin:/sbin:/usr/bin:/usr/sbin \
 		ROOT=/mnt \
 		chroot . /sbin/upgradepkg ${root_flag} ${install_args} ${l_pkg}
