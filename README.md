@@ -2,6 +2,13 @@
 
 build scripts for a slackware container image
 
+## Note
+
+This repository was forked from
+[vbatts/slackware-container](https://github.com/vbatts/slackware-container/)
+at
+[fork-point](https://github.com/andy5995/slackware-container/tree/fork-point).
+
 ## Overview
 
 The Dockerfile is incomplete so far, since it expects a base image to be used.
@@ -53,7 +60,7 @@ Just running:
 ```shell
 sudo podman run -i -t vbatts/slackware /bin/sh
 ```
- 
+
  or
 
 ```shell
@@ -71,13 +78,13 @@ Copyright (c) 2013, Vincent Batts <vbatts@hashbangbash.com>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met: 
+modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer. 
+   list of conditions and the following disclaimer.
 2. Redistributions in binary form must reproduce the above copyright notice,
    this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution. 
+   and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
