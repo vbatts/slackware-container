@@ -1,7 +1,7 @@
 #!/bin/bash
 # Generate a very minimal filesystem from slackware
 
-set -e
+set -ev
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -15,9 +15,9 @@ BUILD_NAME=${BUILD_NAME:-"slackware"}
 VERSION=${VERSION:="current"}
 RELEASENAME=${RELEASENAME:-"slackware${ARCH}"}
 RELEASE=${RELEASE:-"${RELEASENAME}-${VERSION}"}
-MIRROR=${MIRROR:-"http://slackware.osuosl.org"}
-CACHEFS=${CACHEFS:-"/tmp/${BUILD_NAME}/${RELEASE}"}
-ROOTFS=${ROOTFS:-"/tmp/rootfs-${RELEASE}"}
+MIRROR=${MIRROR:-"http://slackware.mirrors.tds.net/pub/slackware/"}
+CACHEFS=${CACHEFS:-"$PWD/tmp/${BUILD_NAME}/${RELEASE}"}
+ROOTFS=${ROOTFS:-"$PWD/tmp/rootfs-${RELEASE}"}
 CWD=$(pwd)
 
 base_pkgs="a/aaa_base \
@@ -219,8 +219,8 @@ umount $ROOTFS/dev
 rm -f dev/* # containers should expect the kernel API (`mount -t devtmpfs none /dev`)
 umount etc/resolv.conf
 
-tar --numeric-owner -cf- . > ${CWD}/${RELEASE}.tar
-ls -sh ${CWD}/${RELEASE}.tar
+#tar --numeric-owner -cf- . > ${CWD}/${RELEASE}.tar
+#ls -sh ${CWD}/${RELEASE}.tar
 
 for dir in cdrom dev sys proc ; do
 	if mount | grep -q $ROOTFS/$dir  ; then

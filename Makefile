@@ -2,7 +2,7 @@ LATEST		= 15.0
 VERSION		= $(LATEST)
 VERSIONS	= 13.0 13.1 13.37 14.0 14.1 14.2 15.0 current
 NAME		= slackware
-MIRROR		= http://slackware.osuosl.org
+MIRROR		= http://slackware.mirrors.tds.net/pub/slackware/
 ifeq ($(shell uname -m),x86_64)
 ARCH = 64
 else ifeq ($(patsubst i%86,x86,$(shell uname -m)),x86)
@@ -16,8 +16,8 @@ ARCH = 64
 endif
 RELEASENAME	?= slackware$(ARCH)
 RELEASE		= $(RELEASENAME)-$(VERSION)
-CACHEFS		= /tmp/$(NAME)/$(RELEASE)
-ROOTFS		= /tmp/rootfs-$(RELEASE)
+CACHEFS		= $PWD/tmp/$(NAME)/$(RELEASE)
+ROOTFS		= $PWD/tmp/rootfs-$(RELEASE)
 #CRT		?= podman
 CRT		?= docker
 
