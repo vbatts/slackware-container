@@ -191,7 +191,7 @@ fi
 mount --bind /etc/resolv.conf etc/resolv.conf
 
 # for slackware 15.0, slackpkg return codes are now:
-# 0 -> All OK, 1 -> something wrong, 20 -> empty list, 50 -> Slackpkg upgraded, 100 -> no pending updates
+# 0 -> All OK, 1 -> something wrong, 20 -> empty list, 50 -> Slackpkg upgraded, 100 -> There are pending updates
 chroot_slackpkg() {
 	PATH=/bin:/sbin:/usr/bin:/usr/sbin \
 	chroot . /bin/bash -c 'yes y | /usr/sbin/slackpkg -batch=on -default_answer=y update'
