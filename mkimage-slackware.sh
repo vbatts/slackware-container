@@ -57,7 +57,6 @@ base_pkgs="a/aaa_base \
 	a/dialog \
 	a/file \
 	a/gawk \
-	a/time \
 	a/gettext \
 	a/libcgroup \
 	a/patch \
@@ -77,6 +76,27 @@ base_pkgs="a/aaa_base \
 	a/findutils \
 	n/iproute2 \
 	n/openssl"
+
+slackware_current_must_haves="n/libmnl \
+	a/pam-1 \
+	l/libcap-ng \
+	n/iptables \
+	l/libpcap \
+	a/dbus-1 \
+	l/libnl3 \
+	n/libnfnetlink \
+	n/libnftnl \
+	n/libnetfilter_conntrack \
+	l/gnome-keyring \
+	a/libpwquality \
+	a/cracklib \
+	n/libtirpc \
+	a/e2fsprogs"
+
+if [[ "$VERSION" == "current" ]]; then
+	base_pkgs="$base_pkgs \
+	$slackware_current_must_haves"
+fi
 
 function cacheit() {
 	file=$1
