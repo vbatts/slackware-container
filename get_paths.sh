@@ -12,7 +12,7 @@ _usage() {
 }
 
 _release_base() {
-    echo "${1}" | cut -d - -f 1
+    echo "${1}" | cut -d - -f 1 | sed 's/armedslack/slackware/;s/slackwarearm/slackware/;s/slackwareaarch64/slackware/'
 }
 
 _fetch_file_list() {
@@ -84,21 +84,30 @@ main() {
         esac
     done
     shift $((OPTIND-1))
-    
+
     tmp_dir="$(mktemp -d)"
     tmp_file_list="${tmp_dir}/FILE_LIST"
     if [ -n "${fetch_patches}" ] ; then
         _fetch_file_list "${mirror}" "${release}" "patches" >> "${tmp_file_list}"
+        ret=$?
+        if [ $ret -ne 0 ] ; then
+            echo "ERROR fetching FILE_LIST" >&2
+            exit $ret
+        fi
     elif [ -n "${fetch_extra}" ] ; then
         _fetch_file_list "${mirror}" "${release}" "extra" >> "${tmp_file_list}"
+        ret=$?
+        if [ $ret -ne 0 ] ; then
+            echo "ERROR fetching FILE_LIST" >&2
+            exit $ret
+        fi
     else
         _fetch_file_list "${mirror}" "${release}" "$(_release_base "${release}")" > "${tmp_file_list}"
-    fi
-
-    ret=$?
-    if [ $ret -ne 0 ] ; then
-        echo "ERROR fetching FILE_LIST" >&2
-        exit $ret
+        ret=$?
+        if [ $ret -ne 0 ] ; then
+            echo "ERROR fetching FILE_LIST" >&2
+            exit $ret
+        fi
     fi
 
     if [ -n "${fetch_tagfiles}" ] ; then
@@ -112,7 +121,7 @@ main() {
         done
     fi
 
-    grep '\.t.z$' "${tmp_file_list}" | awk '{ print $8 }' | sed -e 's|\./\(.*\.t.z\)$|\1|g'
+    grep '\.t.z$' "${tmp_file_list}" | awk '{ print $(NF) }' | sed -e 's|\./\(.*\.t.z\)$|\1|g'
 }
 
 _is_sourced || main "${@}"
